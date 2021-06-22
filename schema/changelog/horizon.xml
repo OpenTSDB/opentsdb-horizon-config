@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ This file is part of OpenTSDB.
+  ~  Copyright (C) 2021 Yahoo.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express  implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+  <changeSet author="smrutis" id="1">
+    <sql>
+      CREATE TABLE IF NOT EXISTS `user` (
+      `userid` VARCHAR(128) NOT NULL COMMENT 'EX:\n———\nhuman.smrutis\nrobot.atuomation',
+      `name` VARCHAR(256) NOT NULL DEFAULT '',
+      `enabled` BINARY(1) NOT NULL DEFAULT 1,
+      `creationmode` BINARY(1) NOT NULL COMMENT '0: created by ofline job\n1: created on the
+      fly.\n',
+      `updatedtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `disabledtime` TIMESTAMP NULL,
+      PRIMARY KEY (`userid`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `namespace` (
+      `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(128) NOT NULL,
+      `alias` VARCHAR(128) NOT NULL,
+      `meta` BLOB NOT NULL,
+      `dhtracks` VARCHAR(128) NOT NULL,
+      `enabled` BINARY(1) NOT NULL DEFAULT 1,
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `createdby` VARBINARY(128) NOT NULL DEFAULT '',
+      `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE
+      CURRENT_TIMESTAMP(6),
+      `updatedby` VARBINARY(128) NOT NULL DEFAULT '',
+      PRIMARY KEY (`id`),
+      UNIQUE INDEX `uq_namespace_name` (`name`),
+      UNIQUE INDEX `uq_namespace_alias` (`alias`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `namespace_member` (
+      `namespaceid` INT UNSIGNED NOT NULL,
+      `userid` VARCHAR(128) NOT NULL,
+      PRIMARY KEY (`namespaceid`, `userid`),
+      CONSTRAINT `fk_namespace_member_namespace` FOREIGN KEY (`namespaceid`) REFERENCES `namespace`
+      (`id`),
+      CONSTRAINT `fk_namespace_member_user` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `namespace_follower` (
+      `namespaceid` INT UNSIGNED NOT NULL,
+      `userid` VARCHAR(128) NOT NULL,
+      PRIMARY KEY (`namespaceid`, `userid`),
+      CONSTRAINT `fk_namespace_follower_namespace` FOREIGN KEY (`namespaceid`) REFERENCES
+      `namespace` (`id`),
+      CONSTRAINT `fk_namespace_follower_user` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `content` (
+      `sha2` BINARY(32) NOT NULL,
+      `data` BLOB NOT NULL,
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `createdby` VARBINARY(128) NOT NULL DEFAULT '',
+      PRIMARY KEY (`sha2`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `folder` (
+      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(512) NOT NULL,
+      `type` TINYINT UNSIGNED NOT NULL COMMENT 'refers to a meta table.\n\nPossible values are \n-
+      Dashboard\n- Alert\n',
+      `path` VARCHAR(512) NOT NULL,
+      `pathhash` BINARY(16) NOT NULL,
+      `parentpathhash` BINARY(16) NULL,
+      `contentid` BINARY(32),
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `createdby` VARBINARY(128) NOT NULL DEFAULT '',
+      `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE
+      CURRENT_TIMESTAMP(6),
+      `updatedby` VARBINARY(128) NOT NULL DEFAULT '',
+      PRIMARY KEY (`id`),
+      UNIQUE INDEX `uq_folder_type_pathhash` (`type`, `pathhash`),
+      INDEX `idx_folder_parentpathhash` (`parentpathhash`),
+      CONSTRAINT `fk_folder_content` FOREIGN KEY (`contentid`) REFERENCES `content` (`sha2`))
+      ENGINE = InnoDB
+      COMMENT = 'Need to partition table by type.';
+
+      CREATE TABLE IF NOT EXISTS `folder_history` (
+      `folderid` BIGINT UNSIGNED NOT NULL,
+      `contentid` BINARY(32) NOT NULL,
+      `createdtime` TIMESTAMP NOT NULL,
+      PRIMARY KEY (`folderid`, `contentid`),
+      CONSTRAINT `fk_history_folder` FOREIGN KEY (`folderid`) REFERENCES `folder` (`id`),
+      CONSTRAINT `fk_history_content` FOREIGN KEY (`contentid`) REFERENCES `content` (`sha2`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `folder_type` (
+      `id` TINYINT UNSIGNED NOT NULL,
+      `type` VARCHAR(128) NOT NULL,
+      PRIMARY KEY (`id`))
+      ENGINE = InnoDB;
+
+      INSERT INTO folder_type(id, type) VALUES (0, 'DASHBOARD');
+      INSERT INTO folder_type(id, type) VALUES (1, 'ALERT');
+    </sql>
+  </changeSet>
+
+  <changeSet author="sidhhu" id="2">
+    <sql>
+      CREATE TABLE IF NOT EXISTS `contact` (
+      `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(128) NOT NULL,
+      `type` TINYINT NOT NULL,
+      `content` BLOB NOT NULL,
+      `namespaceid` INT UNSIGNED NOT NULL,
+      `createdby` VARCHAR(128) NOT NULL DEFAULT '',
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `updatedby` VARCHAR(128) NOT NULL DEFAULT '',
+      `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`id`),
+      UNIQUE INDEX `uq_namespace_type_name` (`namespaceid`, `type`, `name`),
+      CONSTRAINT `fk_contact_namespace`
+      FOREIGN KEY (`namespaceid`)
+      REFERENCES `namespace` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `alert` (
+      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(512) NOT NULL,
+      `type` TINYINT NOT NULL,
+      `labels` BLOB NOT NULL,
+      `definition` BLOB NOT NULL,
+      `enabled` BINARY(1) NOT NULL DEFAULT 1,
+      `deleted` BINARY(1) NOT NULL DEFAULT 0,
+      `namespaceid` INT UNSIGNED NOT NULL,
+      `createdby` VARCHAR(128) NOT NULL DEFAULT '',
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `updatedby` VARCHAR(128) NOT NULL DEFAULT '',
+      `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`id`),
+      UNIQUE INDEX `uq_namespace_name` (`namespaceid`, `name`),
+      CONSTRAINT `fk_alert_namespace`
+      FOREIGN KEY (`namespaceid`)
+      REFERENCES `namespace` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `alert_contact` (
+      `alertid` BIGINT UNSIGNED NOT NULL,
+      `contactid` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`alertid`, `contactid`),
+      CONSTRAINT `fk_alert_contact_alert`
+      FOREIGN KEY (`alertid`)
+      REFERENCES `alert` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTIOn,
+      CONSTRAINT `fk_alert_contact_contact`
+      FOREIGN KEY (`contactid`)
+      REFERENCES `contact` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+    </sql>
+  </changeSet>
+  <changeSet author="smrutis" id="3">
+    <sql>
+      ALTER TABLE `content` MODIFY `data` MEDIUMBLOB NOT NULL;
+      ALTER TABLE `folder_history` ADD KEY (`folderid`), DROP PRIMARY KEY, ADD `id` BIGINT UNSIGNED NOT NULL
+      AUTO_INCREMENT, ADD PRIMARY KEY (`id`);
+    </sql>
+    <comment>support larger dashboards</comment>
+  </changeSet>
+  <changeSet author="chiruvol" id="4">
+    <sql>
+      CREATE TABLE IF NOT EXISTS `snooze` (
+      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `definition` BLOB NOT NULL,
+      `starttime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `endtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `enabled` BINARY(1) NOT NULL DEFAULT 1,
+      `deleted` BINARY(1) NOT NULL DEFAULT 0,
+      `namespaceid` INT UNSIGNED NOT NULL,
+      `createdby` VARCHAR(128) NOT NULL DEFAULT '',
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `updatedby` VARCHAR(128) NOT NULL DEFAULT '',
+      `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`id`),
+      CONSTRAINT `fk_snooze_namespace`
+      FOREIGN KEY (`namespaceid`)
+      REFERENCES `namespace` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `snooze_contact` (
+      `snoozeid` BIGINT UNSIGNED NOT NULL,
+      `contactid` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`snoozeid`, `contactid`),
+      CONSTRAINT `fk_snooze_contact_snooze`
+      FOREIGN KEY (`snoozeid`)
+      REFERENCES `snooze` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+      CONSTRAINT `fk_snooze_contact_contact`
+      FOREIGN KEY (`contactid`)
+      REFERENCES `contact` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+    </sql>
+    <comment>Add snooze service</comment>
+  </changeSet>
+
+  <changeSet author="smrutis" id="5">
+    <sql>
+      CREATE TABLE IF NOT EXISTS `favorite_folder` (
+      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `userid` VARCHAR(128) NOT NULL,
+      `folderid` BIGINT UNSIGNED NOT NULL,
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`id`),
+      UNIQUE INDEX `uq_userid_folderid` (`userid`, `folderid`),
+      INDEX `fk_favorite_folder_folder_idx` (`folderid`),
+      CONSTRAINT `fk_favorite_folder_user`
+      FOREIGN KEY (`userid`)
+      REFERENCES `user` (`userid`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+      CONSTRAINT `fk_favorite_folder_folder`
+      FOREIGN KEY (`folderid`)
+      REFERENCES `folder` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `folder_activity` (
+      `userid` VARCHAR(128) NOT NULL,
+      `folderid` BIGINT UNSIGNED NOT NULL,
+      `lastvisitedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`userid`, `folderid`),
+      INDEX `fk_folder_activity_folder_idx` (`folderid`),
+      CONSTRAINT `fk_folder_activity_user`
+      FOREIGN KEY (`userid`)
+      REFERENCES `user` (`userid`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+      CONSTRAINT `fk_folder_activity_folder`
+      FOREIGN KEY (`folderid`)
+      REFERENCES `folder` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+    </sql>
+    <comment>support favorite and recent dashboards</comment>
+  </changeSet>
+  <changeSet author="smrutis" id="6">
+    <sql>
+      CREATE TABLE IF NOT EXISTS `content_type` (
+      `id` TINYINT UNSIGNED NOT NULL,
+      `type` VARCHAR(128) NOT NULL,
+      PRIMARY KEY (`id`))
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `content_history` (
+      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `contenttype` TINYINT UNSIGNED NOT NULL,
+      `entityid` BIGINT UNSIGNED NOT NULL COMMENT 'Id of the entity. Example: alert, dashboard, snapshot etc.',
+      `contentid` BINARY(32) NOT NULL,
+      `createdby` VARCHAR(128) NOT NULL,
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`id`),
+      INDEX `fk_content_history_content_type_idx` (`contenttype`),
+      INDEX `fk_content_history_content_idx` (`contentid`),
+      CONSTRAINT `fk_content_history_content_type`
+      FOREIGN KEY (`contenttype`)
+      REFERENCES `content_type` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+      CONSTRAINT `fk_content_history_content`
+      FOREIGN KEY (`contentid`)
+      REFERENCES `content` (`sha2`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `snapshot` (
+      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(512) NOT NULL,
+      `sourcetype` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+      `sourceid` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+      `contentid` BINARY(32) NOT NULL,
+      `createdby` VARCHAR(128) NOT NULL,
+      `createdtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      `updatedby` VARCHAR(128) NOT NULL,
+      `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`id`),
+      INDEX `fk_snapshot_content_type_idx` (`sourcetype`),
+      INDEX `fk_snapshot_content_idx` (`contentid`),
+      CONSTRAINT `fk_snapshot_content_type`
+      FOREIGN KEY (`sourcetype`)
+      REFERENCES `content_type` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+      CONSTRAINT `fk_snapshot_content`
+      FOREIGN KEY (`contentid`)
+      REFERENCES `content` (`sha2`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+
+      INSERT INTO content_type(id, type) VALUES (0, 'UNKNOWN');
+      INSERT INTO content_type(id, type) VALUES (1, 'DASHBOARD');
+      INSERT INTO content_type(id, type) VALUES (2, 'ALERT');
+      INSERT INTO content_type(id, type) VALUES (3, 'SNAPSHOT');
+    </sql>
+    <comment>content history framework and snapshot</comment>
+  </changeSet>
+  <changeSet author="smrutis" id="7">
+    <sql>
+      CREATE TABLE IF NOT EXISTS `activity` (
+      `userid` VARCHAR(128) NOT NULL,
+      `entitytype` TINYINT UNSIGNED NOT NULL,
+      `entityid` BIGINT UNSIGNED NOT NULL,
+      `timestamp` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+      PRIMARY KEY (`userid`, `entitytype`, `entityid`),
+      INDEX `fk_activity_content_type_idx` (`entitytype`),
+      INDEX `idx_timestamp` (`timestamp` DESC),
+      CONSTRAINT `fk_activity_user`
+      FOREIGN KEY (`userid`)
+      REFERENCES `user` (`userid`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+      CONSTRAINT `fk_activity_content_type`
+      FOREIGN KEY (`entitytype`)
+      REFERENCES `content_type` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION)
+      ENGINE = InnoDB;
+    </sql>
+    <comment>activity framework</comment>
+  </changeSet>
+  <changeSet author="smrutis" id="8">
+    <sql>
+      ALTER TABLE `user` MODIFY `enabled` TINYINT(1) NOT NULL DEFAULT 1;
+      ALTER TABLE `user` MODIFY `creationmode` TINYINT(1) NOT NULL COMMENT '0: created by offline job\n1: created on the
+      fly.\n';
+      ALTER TABLE `namespace` MODIFY `enabled` TINYINT(1) NOT NULL DEFAULT 1;
+      ALTER TABLE `alert` MODIFY `enabled` TINYINT(1) NOT NULL DEFAULT 1;
+      ALTER TABLE `alert` MODIFY `deleted` TINYINT(1) NOT NULL DEFAULT 0;
+      ALTER TABLE `snooze` MODIFY `enabled` TINYINT(1) NOT NULL DEFAULT 1;
+      ALTER TABLE `snooze` MODIFY `deleted` TINYINT(1) NOT NULL DEFAULT 0;
+    </sql>
+    <comment>Fixed the type for boolean columns</comment>
+  </changeSet>
+  <changeSet author="smrutis" id="9">
+    <sql>
+      ALTER TABLE `namespace` DROP COLUMN `dhtracks`;
+      ALTER TABLE `namespace` MODIFY `createdby` VARCHAR(128) NOT NULL;
+      ALTER TABLE `namespace` MODIFY `updatedby` VARCHAR(128) NOT NULL;
+      ALTER TABLE `content` MODIFY `createdby` VARCHAR(128) NOT NULL;
+      ALTER TABLE `folder` MODIFY `createdby` VARCHAR(128) NOT NULL;
+      ALTER TABLE `folder` MODIFY `updatedby` VARCHAR(128) NOT NULL;
+    </sql>
+    <comment>Open source ready</comment>
+  </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,3598 @@
+{
+  "version": 2,
+  "settings": {
+    "time": {
+      "start": "7d",
+      "end": "now",
+      "zone": "utc"
+    },
+    "meta": {
+      "title": "test-dashboard",
+      "description": "",
+      "labels": [],
+      "namespace": "",
+      "isPersonal": false
+    },
+    "variables": {
+      "enabled": true,
+      "tplVariables": [
+        {
+          "tagk": "env",
+          "alias": "",
+          "allowedValues": [
+            "dev",
+            "prod"
+          ],
+          "filter": [
+            "prod"
+          ],
+          "enabled": true,
+          "type": "literalor"
+        },
+        {
+          "tagk": "ns",
+          "alias": "",
+          "allowedValues": [
+            "myns-a",
+            "myns-b",
+            "myns-c"
+          ],
+          "filter": [],
+          "enabled": true,
+          "type": "literalor"
+        },
+        {
+          "tagk": "stage",
+          "alias": "",
+          "allowedValues": [],
+          "filter": [],
+          "enabled": true,
+          "type": "literalor"
+        },
+        {
+          "tagk": "dc",
+          "alias": "",
+          "allowedValues": [],
+          "filter": [],
+          "enabled": true,
+          "type": "literalor"
+        }
+      ]
+    },
+    "mode": "dashboard",
+    "tags": [
+      "_aggregate",
+      "coord",
+      "env"
+    ],
+    "lastQueriedTagValues": [
+      "DEN",
+      "FOO",
+      "BAR"
+    ]
+  },
+  "widgets": [
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "h": 4,
+        "w": 3,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "BignumberWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "queryID": 0,
+          "prefix": "",
+          "unit": "",
+          "prefixAlignment": "middle",
+          "unitAlignment": "middle",
+          "prefixSize": "m",
+          "unitSize": "m",
+          "caption": "Test BigN",
+          "precision": 2,
+          "backgroundColor": "#0B5ED2",
+          "textColor": "#FFFFFF",
+          "sparkLineEnabled": false,
+          "changedIndicatorEnabled": false,
+          "prefixUndercased": true
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "54f",
+              "name": "widget1",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": ""
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "summarizer": "sum"
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true,
+              "queryID": 0
+            }
+          },
+          "id": "i0h"
+        }
+      ],
+      "id": "yxf766"
+    },
+    {
+      "gridPos": {
+        "x": 6,
+        "y": 76,
+        "h": 3,
+        "w": 6,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Assigned bytes",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "doughnut"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "sdm",
+              "name": "sys.cpu.usr",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#9971E0",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "host"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "rct"
+        }
+      ],
+      "id": "b7lipj"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 74,
+        "h": 2,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "MarkdownWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "text": "Widget 3",
+          "backgroundColor": "#FFFFFF",
+          "font": "default",
+          "textColor": "#000000"
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [],
+      "id": "qorm3i"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "h": 16,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "MarkdownWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "text": "Markdown goes here.",
+          "backgroundColor": "#FFFFFF",
+          "font": "default",
+          "textColor": "#000000"
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [],
+      "id": "wb3g46"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 88,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 5",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "nanoseconds",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "runtime"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "avg"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "Widget 6",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "rz26qg"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 124,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 7",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {},
+          "y2": {}
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "rw6",
+              "name": "Widget 8",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "#",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(den.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "ouo"
+        }
+      ],
+      "id": "35soiq"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 104,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 9",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "0",
+            "label": "# files"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "avg"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "avg"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "avg"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "Widget 10",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "min",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "l81fkz"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 93,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 11",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "avg"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "avg"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "Widget 12",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "min",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "vkbaxn"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 109,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 13",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "avg"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "avg"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "avg"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m14",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "min",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "m50pmr"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 114,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 15",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "avg"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "avg"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "avg"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "Widget 16",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "min",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "kpf8sd"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 98,
+        "h": 6,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 17",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "avg"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "avg"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "avg"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "Widget 18",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "min",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "ri2y2h"
+    },
+    {
+      "gridPos": {
+        "x": 6,
+        "y": 79,
+        "h": 9,
+        "w": 6,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 19",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "auto",
+          "conditions": [
+            {
+              "operator": "ge",
+              "value": 0,
+              "color": "#5AFC66"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 10
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "Widget 20",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "nihwfk"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 82,
+        "h": 6,
+        "w": 6,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 21",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "decbyte",
+          "conditions": [
+            {
+              "operator": "gt",
+              "value": "",
+              "color": "#da001b"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m21",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "k0u9qi"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "h": 5,
+        "w": 5,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 22",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "decbyte",
+          "conditions": [
+            {
+              "operator": "ge",
+              "value": 0,
+              "color": "#446E17"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m22",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "ax02ha"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 57,
+        "h": 5,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 23",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "auto",
+          "conditions": [
+            {
+              "operator": "ge",
+              "value": 0,
+              "color": "#0B5ED2"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m23",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "nlvrch"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 62,
+        "h": 6,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 24",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "auto",
+          "conditions": [
+            {
+              "operator": "ge",
+              "value": 0,
+              "color": "#0B5ED2"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m24",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "e5krr0"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 68,
+        "h": 6,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 25",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "auto",
+          "conditions": [
+            {
+              "operator": "gt",
+              "value": "",
+              "color": "#da001b"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m25",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "scgpz6"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 45,
+        "h": 6,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 26",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "auto",
+          "conditions": [
+            {
+              "operator": "gt",
+              "value": "",
+              "color": "#da001b"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m26",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "jzq9te"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 45,
+        "h": 6,
+        "w": 8,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 26",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# records"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m26",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": "records",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "co9yqh"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "h": 2,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "MarkdownWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "text": "More Markdown",
+          "backgroundColor": "#FFFFFF",
+          "font": "default",
+          "textColor": "#000000"
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [],
+      "id": "pjratm"
+    },
+    {
+      "gridPos": {
+        "x": 5,
+        "y": 34,
+        "h": 5,
+        "w": 7,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 27",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "decbyte",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# bytes"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m27",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#446E17",
+                  "label": "bytes",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "4lg6rv"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 57,
+        "h": 5,
+        "w": 8,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 28",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# records"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m28",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#0B5ED2",
+                  "label": "records",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "swfkwf"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 68,
+        "h": 6,
+        "w": 8,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 29",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# files"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m29",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": "records",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "h70n1w"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 43,
+        "h": 2,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "MarkdownWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "text": "Another markdown",
+          "backgroundColor": "#FFFFFF",
+          "font": "default",
+          "textColor": "#000000"
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [],
+      "id": "br3slc"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 51,
+        "h": 6,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 30",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "decbyte",
+          "conditions": [
+            {
+              "operator": "ge",
+              "value": 0,
+              "color": "#446E17"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m30",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "x6vqyb"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 51,
+        "h": 6,
+        "w": 8,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 31",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "decbyte",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# bytes"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m31",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#446E17",
+                  "label": "bytes",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "4o7bu6"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "h": 4,
+        "w": 5,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 32",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "auto",
+          "conditions": [
+            {
+              "operator": "gt",
+              "value": "",
+              "color": "#da001b"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "order": "top",
+          "limit": 100
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m32",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "hs3hi3"
+    },
+    {
+      "gridPos": {
+        "x": 5,
+        "y": 39,
+        "h": 4,
+        "w": 7,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 33",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# files"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m33",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": "files",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "nikgg4"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 34",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "twa",
+              "name": "m34",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": " "
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "96ess2"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 76,
+        "h": 6,
+        "w": 6,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 35",
+        "component_type": "TopnWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "unit": "decbyte",
+          "conditions": [
+            {
+              "operator": "ge",
+              "value": 0,
+              "color": "#446E17"
+            }
+          ]
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 10,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "km0",
+              "name": "m35",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": " "
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "62e"
+        }
+      ],
+      "id": "gjqsgu"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 24,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 36",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "m0j",
+              "name": "m36",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#9971E0",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "wwe0zu"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 28,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 37",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "m0j",
+              "name": "m37",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#9971E0",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "2d7m50"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 38",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "twa",
+              "name": "m38",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "99crry"
+    },
+    {
+      "gridPos": {
+        "x": 8,
+        "y": 24,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 39",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "twa",
+              "name": "m39",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#6DDDFA",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "dqjqwo"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "h": 2,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "MarkdownWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "text": "Markdown works nicely",
+          "backgroundColor": "#FFFFFF",
+          "font": "default",
+          "textColor": "#000000"
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [],
+      "id": "fe2j8d"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "h": 2,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "my widget",
+        "component_type": "MarkdownWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "text": "And still works good",
+          "backgroundColor": "#FFFFFF",
+          "font": "default",
+          "textColor": "#000000"
+        },
+        "axes": {},
+        "legend": {},
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregator": "avg",
+            "customValue": "",
+            "customUnit": ""
+          }
+        }
+      },
+      "queries": [],
+      "id": "iviolk"
+    },
+    {
+      "gridPos": {
+        "x": 3,
+        "y": 18,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 40",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "twa",
+              "name": "m34",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "5hrji7"
+    },
+    {
+      "gridPos": {
+        "x": 7,
+        "y": 18,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 42",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "m0j",
+              "name": "m42",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#9971E0",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "3xvk0f"
+    },
+    {
+      "gridPos": {
+        "x": 8,
+        "y": 28,
+        "h": 4,
+        "w": 4,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 43",
+        "component_type": "DonutWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {
+          "type": "pie"
+        },
+        "axes": {},
+        "legend": {
+          "display": true,
+          "position": "left",
+          "showPercentages": false
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "max"
+            ],
+            "customValue": "",
+            "customUnit": ""
+          }
+        },
+        "dataSummary": true,
+        "sorting": {
+          "limit": 25,
+          "order": "top"
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "m0j",
+              "name": "m43",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#9971E0",
+                  "label": "-"
+                }
+              },
+              "tagAggregator": "max",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            }
+          },
+          "id": "gxp"
+        }
+      ],
+      "id": "tajuej"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 119,
+        "h": 5,
+        "w": 12,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 44",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "avg"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "avg"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "avg"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m44",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "auto",
+                  "label": "ds",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "min",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "zxnrfb"
+    },
+    {
+      "gridPos": {
+        "x": 4,
+        "y": 62,
+        "h": 6,
+        "w": 8,
+        "dragAndDrop": true,
+        "resizable": true
+      },
+      "settings": {
+        "title": "Widget 45",
+        "component_type": "LinechartWidgetComponent",
+        "data_source": "opentsdb",
+        "visual": {},
+        "axes": {
+          "y1": {
+            "enabled": true,
+            "unit": "auto",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": "# files"
+          },
+          "y2": {
+            "enabled": false,
+            "unit": "",
+            "scale": "linear",
+            "min": "auto",
+            "max": "auto",
+            "decimals": "auto",
+            "label": ""
+          }
+        },
+        "legend": {
+          "display": true,
+          "position": "right",
+          "columns": [
+            "sum"
+          ],
+          "tags": []
+        },
+        "time": {
+          "downsample": {
+            "value": "auto",
+            "aggregators": [
+              "sum"
+            ],
+            "customValue": "",
+            "customUnit": "",
+            "aggregator": "sum"
+          }
+        }
+      },
+      "queries": [
+        {
+          "namespace": "MyNS",
+          "metrics": [
+            {
+              "id": "5mj",
+              "name": "m45",
+              "filters": [],
+              "settings": {
+                "visual": {
+                  "visible": true,
+                  "color": "#B0D9F9",
+                  "label": " ",
+                  "axis": "y1",
+                  "type": "bar",
+                  "lineWeight": "1px",
+                  "lineType": "solid"
+                }
+              },
+              "tagAggregator": "sum",
+              "functions": [],
+              "groupByTags": [
+                "dc"
+              ]
+            }
+          ],
+          "filters": [
+            {
+              "tagk": "dc",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            },
+            {
+              "tagk": "env",
+              "filter": [
+                "regexp(.*)"
+              ],
+              "groupBy": false
+            }
+          ],
+          "settings": {
+            "visual": {
+              "visible": true
+            },
+            "explicitTagMatch": false
+          },
+          "id": "szj"
+        }
+      ],
+      "id": "qq3lnq"
+    }
+  ]
+}

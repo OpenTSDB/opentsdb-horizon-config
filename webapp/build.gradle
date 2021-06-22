@@ -1,0 +1,95 @@
+/*
+ * This file is part of OpenTSDB.
+ *  Copyright (C) 2021 Yahoo.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express  implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+plugins {
+    id 'net.opentsdb.horizon.java-application-conventions'
+    id "org.unbroken-dome.test-sets" version "4.0.0"
+    id 'com.bmuschko.docker-java-application' version '6.6.1'
+}
+
+testSets {
+    integrationTest
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-text'
+
+    api project(':profile-service')
+    api project(':filesystem-service')
+    api project(':alert-service')
+    api project(':snapshot')
+
+    api group: 'com.yahoo.athenz', name: 'athenz-cert-refresher', version: '1.10.15'
+    api group: 'io.swagger', name: 'swagger-jaxrs', version: '1.6.2'
+    api group: 'io.undertow', name: 'undertow-core', version: '2.2.7.Final'
+    api group: 'io.undertow', name: 'undertow-servlet', version: '2.2.7.Final'
+    api group: 'io.ultrabrew.metrics', name: 'metrics-core', version: '0.8.0'
+    api group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    api group: 'org.yaml', name: 'snakeyaml', version: '1.21'
+    api group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
+    api group: 'org.hibernate', name: 'hibernate-c3p0', version: '5.4.31.Final'
+    api group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '4.5.12.Final'
+    api group: 'org.jboss.resteasy', name: 'resteasy-undertow', version: '4.5.12.Final'
+
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.14.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.14.1'
+
+    integrationTestImplementation group: 'com.jayway.restassured', name: 'rest-assured', version: '2.9.0'
+    integrationTestImplementation group: 'org.jdbi', name: 'jdbi3-core', version: '3.12.2'
+
+    if (project.gradle.startParameter.taskNames.contains("run")) {
+        runtimeOnly files('src/dist/log4j2')
+    }
+}
+
+application {
+    mainClass = 'net.opentsdb.horizon.Main'
+    tasks.distZip.enabled = false
+
+    startScripts {
+        defaultJvmOpts = ['-Xms${HEAP_SIZE_MIN:-2g}', '-Xmx${HEAP_SIZE_MIN:-4g}']
+
+        doLast {
+            // gradle script generator escapes the '$'. So, it's a quick hack to replace '\$' with '$'.
+            def bashFile = new File(getOutputDir(), applicationName)
+            String bashContent = bashFile.text
+            bashFile.text = bashContent.replaceAll('\\\\\\$\\{', '\\${')
+
+            // This parametrized JvmOpts doesn't work for windows (.bat script). May be we should write a custom plugin
+            // that applies the application plugin plus any additional configuration it may need e.g. custom templates
+            // so that this can reuse it in multiple project. Till then removing the bat script
+            delete windowsScript
+        }
+    }
+}
+
+integrationTest {
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    mustRunAfter test
+    onlyIf {
+        project.getProperties().get("env") != null
+    }
+
+    systemProperty "env", findProperty("env")
+}
+
+check.dependsOn integrationTest

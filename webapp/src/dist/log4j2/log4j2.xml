@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ This file is part of OpenTSDB.
+  ~  Copyright (C) 2021 Yahoo.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express  implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<configuration monitorInterval="60">
+
+  <properties>
+    <property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS,UTC} [%thread] %-5level %logger{35} - %msg%n</property>
+    <property name="LOG_DIR">${env:LOG_DIR:-logs}</property>
+    <property name="ROOT_APPENDER">${sys:rootAppender:-SERVER_LOG}</property>
+    <property name="ACCESS_LOG_APPENDER">${sys:accessLogAppender:-ACCESS_LOG}</property>
+  </properties>
+
+  <appenders>
+    <RollingFile name="SERVER_LOG" fileName="${LOG_DIR}/server.log" filePattern="${LOG_DIR}/server.%d-%i.log">
+      <PatternLayout>
+        <pattern>${PATTERN}</pattern>
+      </PatternLayout>
+      <Policies>
+        <OnStartupTriggeringPolicy/>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="1GB"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${LOG_DIR}">
+          <IfFileName regex="server.*">
+            <IfAny>
+              <IfLastModified age="7d"/>
+              <IfAccumulatedFileCount exceeds="50"/>
+            </IfAny>
+          </IfFileName>
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingFile>
+
+    <RollingFile name="ACCESS_LOG" fileName="${LOG_DIR}/access.log" filePattern="${LOG_DIR}/access.%d-%i.log">
+      <PatternLayout>
+        <pattern>${PATTERN}</pattern>
+      </PatternLayout>
+      <Policies>
+        <OnStartupTriggeringPolicy/>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="1GB"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${LOG_DIR}">
+          <IfFileName regex="access.*">
+            <IfAny>
+              <IfLastModified age="7d"/>
+              <IfAccumulatedFileCount exceeds="50"/>
+            </IfAny>
+          </IfFileName>
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingFile>
+
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+      <PatternLayout>
+        <pattern>${PATTERN}</pattern>
+      </PatternLayout>
+    </Console>
+  </appenders>
+
+
+  <loggers>
+    <root level="INFO">
+      <appender-ref ref="${ROOT_APPENDER}"/>
+    </root>
+    <logger name="AccessLog" level="INFO" additivity="false">
+      <appender-ref ref="${ACCESS_LOG_APPENDER}"/>
+    </logger>
+    <Logger name="UserCache" level="FATAL"/>
+  </loggers>
+
+</configuration>
