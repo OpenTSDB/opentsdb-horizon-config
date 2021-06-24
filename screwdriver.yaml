@@ -9,7 +9,7 @@ jobs:
   main:
     requires: [~commit]
     steps:
-      - run_arbitrary_script: ./gradlew build
+      - run_arbitrary_script: ./gradlew publish
     secrets:
       - CI_DEPLOY_USERNAME
       - CI_DEPLOY_PASSWORD
