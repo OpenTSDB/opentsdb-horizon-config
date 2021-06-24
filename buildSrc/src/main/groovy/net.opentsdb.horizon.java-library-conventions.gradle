@@ -19,6 +19,7 @@ plugins {
     id 'net.opentsdb.horizon.java-common-conventions'
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
 }
 
 
@@ -26,10 +27,49 @@ group 'net.opentsdb'
 archivesBaseName = rootProject.name + '-' + name
 
 publishing {
+    repositories {
+        maven {
+            def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
+            afterEvaluate {
+                url = version.toString().endsWith('-SNAPSHOT') ? snapshotRepo : releaseRepo
+            }
+            credentials {
+                username = System.getenv('CI_DEPLOY_USERNAME') ? System.getenv('CI_DEPLOY_USERNAME') : "Unknown user"
+                password = System.getenv('CI_DEPLOY_PASSWORD') ? System.getenv('CI_DEPLOY_PASSWORD') : "Unknown password"
+            }
+        }
+    }
+
     publications {
         maven(MavenPublication) {
             artifactId = archivesBaseName
             from components.java
+            pom {
+                groupId = 'net.opentsdb.horizon'
+                name = 'OpenTSDB Horizon Config Libraries'
+                description = 'OpenTSDB Horizon Config Libraries'
+                url = 'https://github.com/OpenTSDB/opentsdb-horizon-config'
+                //from components.java
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:OpenTSDB/opentsdb-horizon-config'
+                    developerConnection = 'scm:git:git@github.com:OpenTSDB/opentsdb-horizon-config'
+                    url = 'https://github.com/OpenTSDB/opentsdb-horizon-config/'
+                }
+            }
         }
     }
+}
+
+signing {
+    sign publishing.publications.maven
+}
+tasks.withType(Sign) {
+    onlyIf { !version.toString().endsWith('-SNAPSHOT') }
 }
