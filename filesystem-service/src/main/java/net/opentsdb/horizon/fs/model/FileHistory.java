@@ -17,44 +17,55 @@
 
 package net.opentsdb.horizon.fs.model;
 
+import javax.persistence.Transient;
 import java.sql.Timestamp;
 
 public class FileHistory {
 
-    private long id;
-    private long fileid;
-    private byte[] contentid;
-    private Timestamp createdtime;
+  private long id;
+  private long fileid;
+  private byte[] contentid;
+  private Timestamp createdtime;
+  
+  @Transient private String createdBy;
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public long getFileid() {
-        return fileid;
-    }
+  public Long getFileid() {
+    return fileid;
+  }
 
-    public void setFileid(long fileid) {
-        this.fileid = fileid;
-    }
+  public void setFileid(Long fileid) {
+    this.fileid = fileid;
+  }
 
-    public byte[] getContentid() {
-        return contentid;
-    }
+  public byte[] getContentid() {
+    return contentid;
+  }
 
-    public void setContentid(byte[] contentid) {
-        this.contentid = contentid;
-    }
+  public void setContentid(byte[] contentid) {
+    this.contentid = contentid;
+  }
 
-    public Timestamp getCreatedtime() {
-        return createdtime;
-    }
+  public Timestamp getCreatedtime() {
+    return createdtime;
+  }
 
-    public void setCreatedtime(Timestamp createdtime) {
-        this.createdtime = createdtime;
-    }
+  public void setCreatedtime(Timestamp createdtime) {
+    this.createdtime = createdtime;
+  }
+
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 }

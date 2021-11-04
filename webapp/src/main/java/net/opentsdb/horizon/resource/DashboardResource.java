@@ -18,7 +18,10 @@
 package net.opentsdb.horizon.resource;
 
 
+import net.opentsdb.horizon.fs.view.ContentDto;
 import net.opentsdb.horizon.fs.view.FileDto;
+import net.opentsdb.horizon.fs.view.FileHistoryDto;
+import net.opentsdb.horizon.fs.view.FileHistoryListDto;
 import net.opentsdb.horizon.fs.view.FolderDto;
 import net.opentsdb.horizon.service.DashboardService;
 import net.opentsdb.horizon.view.MoveRequest;
@@ -111,10 +114,41 @@ public class DashboardResource {
     @Path("file/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getFileById(@PathParam("id") long id, @Context HttpServletRequest request) {
-        FileDto file = dashboardService.getFileById(id, request.getUserPrincipal().getName());
+    public Response getFileById(@PathParam("id") long id, @DefaultValue("0") @QueryParam("historyId") long historyId, @Context HttpServletRequest request) {
+        FileDto file = dashboardService.getFileById(id, historyId, request.getUserPrincipal().getName());
         final Response.ResponseBuilder responseBuilder = file == null ? Response.status(Response.Status.NOT_FOUND) : Response.status(Response.Status.OK);
         return responseBuilder.entity(file).build();
+    }
+
+    @ApiOperation("Get File history")
+    @GET
+    @Path("file/{id}/history")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFileHistory(@PathParam("id") long id, @Context HttpServletRequest request) {
+        FileHistoryListDto histories = dashboardService.getFileHistory(id);
+        return Response.status(Response.Status.OK).entity(histories).build();
+    }
+
+    @ApiOperation("Get File content")
+    @GET
+    @Path("file/history/{historyId}/content")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFileContent(@PathParam("historyId") long historyId, @Context HttpServletRequest request) {
+        ContentDto content = dashboardService.getFileContent(historyId);
+        final Response.ResponseBuilder responseBuilder = content == null ? Response.status(Response.Status.NOT_FOUND) : Response.status(Response.Status.OK);
+        return responseBuilder.entity(content).build();
+    }
+
+    @ApiOperation("Set default content")
+    @PUT
+    @Path("file/{id}/content")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response setDefaultContent(@PathParam("id") long id, FileDto file, @Context HttpServletRequest request) {
+        FileDto view = dashboardService.setDefaultContent(id, file.getHistoryId(), request.getUserPrincipal().getName());
+        return Response.status(Response.Status.OK).entity(view).build();
     }
 
     @ApiOperation("Get by path")

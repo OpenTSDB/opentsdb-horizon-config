@@ -43,12 +43,11 @@ public class AuthServiceTest {
   @Tested private AuthService authService;
 
   @Injectable private NamespaceMemberStore namespaceMemberStore;
-
   @Injectable private ZTSClient ztsClient;
-
   @Mocked private Connection connection;
-
   @Injectable private String athensDomain;
+  @Injectable private String providerDomain;
+  @Injectable private String providerService;
 
   @ParameterizedTest
   @MethodSource("testAuthorization")

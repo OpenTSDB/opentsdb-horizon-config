@@ -17,6 +17,12 @@
 
 package net.opentsdb.horizon.service;
 
+import com.yahoo.athenz.zms.Role;
+import com.yahoo.athenz.zms.RoleMember;
+import com.yahoo.athenz.zms.ZMSClient;
+import com.yahoo.athenz.zms.ZMSClientException;
+import com.yahoo.athenz.zts.ZTSClient;
+import com.yahoo.rdl.Timestamp;
 import net.opentsdb.horizon.NamespaceCache;
 import net.opentsdb.horizon.UserCache;
 import net.opentsdb.horizon.model.Namespace;
@@ -25,12 +31,6 @@ import net.opentsdb.horizon.model.User.CreationMode;
 import net.opentsdb.horizon.profile.Utils;
 import net.opentsdb.horizon.store.NamespaceFollowerStore;
 import net.opentsdb.horizon.store.NamespaceMemberStore;
-import com.yahoo.athenz.zms.Role;
-import com.yahoo.athenz.zms.RoleMember;
-import com.yahoo.athenz.zms.ZMSClient;
-import com.yahoo.athenz.zms.ZMSClientException;
-import com.yahoo.athenz.zts.ZTSClient;
-import com.yahoo.rdl.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +48,6 @@ import static net.opentsdb.horizon.profile.Utils.getAthensDomain;
 import static net.opentsdb.horizon.profile.Utils.isAthensManaged;
 import static net.opentsdb.horizon.profile.Utils.validateNamespace;
 import static net.opentsdb.horizon.service.AuthService.ACCESS_ROLE_FORMAT;
-import static net.opentsdb.horizon.service.AuthService.PROVIDER_DOMAIN;
-import static net.opentsdb.horizon.service.AuthService.PROVIDER_SERVICE;
 import static net.opentsdb.horizon.service.BaseService.internalServerError;
 
 public class NamespaceMemberService {
@@ -63,6 +61,8 @@ public class NamespaceMemberService {
   private ZMSClient zmsClient;
   private NamespaceCache namespaceCache;
   private UserCache userCache;
+  private String providerDomain;
+  private String providerService;
 
   public NamespaceMemberService(
       final NamespaceMemberStore memberStore,
@@ -71,7 +71,9 @@ public class NamespaceMemberService {
       final ZTSClient ztsClient,
       final ZMSClient zmsClient,
       final NamespaceCache namespaceCache,
-      final UserCache userCache) {
+      final UserCache userCache,
+      final String providerService,
+      final String providerDomain) {
 
     this.memberStore = memberStore;
     this.followerStore = followerStore;
@@ -80,6 +82,8 @@ public class NamespaceMemberService {
     this.zmsClient = zmsClient;
     this.namespaceCache = namespaceCache;
     this.userCache = userCache;
+    this.providerDomain = providerDomain;
+    this.providerService = providerService;
   }
 
   public List<User> getNamespaceMember(final int namespaceId) {
@@ -104,10 +108,10 @@ public class NamespaceMemberService {
       }
     } else {
       String roleName =
-          String.format(ACCESS_ROLE_FORMAT, PROVIDER_SERVICE, tenantDomain, namespace.getAlias());
+          String.format(ACCESS_ROLE_FORMAT, providerService, tenantDomain, namespace.getAlias());
       Role role;
       try {
-        role = zmsClient.getRole(PROVIDER_DOMAIN, roleName, false, true);
+        role = zmsClient.getRole(providerDomain, roleName, false, true);
       } catch (ZMSClientException e) {
         String message = "Error reading members for namespace: " + namespace.getName();
         LOGGER.error(message, e);
@@ -284,7 +288,7 @@ public class NamespaceMemberService {
     LOGGER.debug("userId: {} namespaces: {}", userId, namespaces);
 
     if (ztsClient != null) {
-      List<String> roles = ztsClient.getRoleAccess("tsdb.property", userId).getRoles();
+      List<String> roles = ztsClient.getRoleAccess(providerDomain, userId).getRoles();
       LOGGER.debug("userId: {} athens roles: {}", userId, roles);
 
       Set<String> tenantNamespaces = Utils.parseNamespaces(roles);
