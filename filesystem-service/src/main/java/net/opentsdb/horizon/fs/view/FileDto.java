@@ -26,11 +26,21 @@ public class FileDto extends FolderDto {
 
     private Object content;
 
+    private Long historyId;
+
     public Object getContent() {
         return content;
     }
 
     public void setContent(Object content) {
         this.content = content;
+    }
+
+    public Long getHistoryId() {
+        return historyId;
+    }
+
+    public void setHistoryId(Long historyId) {
+        this.historyId = historyId;
     }
 }

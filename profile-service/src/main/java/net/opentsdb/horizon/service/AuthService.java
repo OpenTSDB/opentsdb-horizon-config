@@ -35,21 +35,25 @@ public class AuthService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
 
-  public static final String PROVIDER_DOMAIN = "tsdb.property";
-  public static final String PROVIDER_SERVICE = "monitoring";
   public static final String ACCESS_ROLE_FORMAT = "%s.tenant.%s.res_group.namespace_%s.access";
 
   private final NamespaceMemberStore memberStore;
   private final ZTSClient ztsClient;
   private final String athensDomain;
+  private String providerDomain;
+  private String providerService;
 
   public AuthService(
       final NamespaceMemberStore memberStore,
       final ZTSClient ztsClient,
-      final String athensDomain) {
+      final String athensDomain,
+      final String providerService,
+      final String providerDomain) {
     this.memberStore = memberStore;
     this.ztsClient = ztsClient;
     this.athensDomain = athensDomain;
+    this.providerService = providerService;
+    this.providerDomain = providerDomain;
   }
 
   public boolean isSuperAdmin(String principal) {
@@ -89,7 +93,7 @@ public class AuthService {
   private boolean checkAccess(
       final String namespaceAlias, final String tenantDomain, final String principal) {
     String roleName =
-        String.format(ACCESS_ROLE_FORMAT, PROVIDER_SERVICE, tenantDomain, namespaceAlias);
-    return ztsClient.getAccess(PROVIDER_DOMAIN, roleName, principal).granted;
+        String.format(ACCESS_ROLE_FORMAT, providerService, tenantDomain, namespaceAlias);
+    return ztsClient.getAccess(providerDomain, roleName, principal).granted;
   }
 }

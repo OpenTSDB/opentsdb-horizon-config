@@ -262,10 +262,32 @@ public class FolderStore extends BaseStore {
   public File getFileAndContentById(FolderType folderType, long id, Connection connection)
       throws SQLException {
     String sql =
-        "SELECT f.id, f.name, f.type, f.path, f.pathhash, f.parentpathhash, f.contentid, f.createdtime, f.createdby, f.updatedtime, f.updatedby, c.data "
-            + "FROM folder f INNER JOIN content c ON f.contentid = c.sha2 "
+        "SELECT f.id, f.name, f.type, f.path, f.pathhash, f.parentpathhash, f.contentid, f.createdtime, f.createdby, f.updatedtime, f.updatedby, fh.id as historyid, c.data FROM folder f "
+            + "INNER JOIN content c ON f.contentid = c.sha2 "
+            + "INNER JOIN folder_history fh ON c.sha2 = fh.contentid "
             + "WHERE f.type = ? AND f.id = ?";
     return getFileAndContentById(folderType, id, connection, sql);
+  }
+
+  public File getFileAndContentByHistoryId(
+      FolderType folderType, long id, long historyId, Connection connection) throws SQLException {
+    String sql =
+        "SELECT f.id, f.name, f.type, f.path, f.pathhash, f.parentpathhash, f.contentid, f.createdtime, f.createdby, f.updatedtime, f.updatedby, fh.id as historyid, c.data FROM folder f "
+            + "INNER JOIN folder_history fh ON f.id = fh.folderid "
+            + "INNER JOIN content c ON fh.contentid = c.sha2 "
+            + "WHERE f.type = ? AND f.id = ? AND fh.id = ?";
+    File file = null;
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setByte(1, folderType.value);
+      statement.setLong(2, id);
+      statement.setLong(3, historyId);
+      try (final ResultSet rs = statement.executeQuery()) {
+        while (rs.next()) {
+          file = createFile(rs);
+        }
+      }
+    }
+    return file;
   }
 
   private File getFileAndContentById(
@@ -276,22 +298,28 @@ public class FolderStore extends BaseStore {
       statement.setLong(2, id);
       try (final ResultSet rs = statement.executeQuery()) {
         while (rs.next()) {
-          file = new File();
-          file.setId(rs.getLong("id"));
-          file.setName(rs.getString("name"));
-          file.setType(FolderType.values()[rs.getInt("type")]);
-          file.setPath(rs.getString("path"));
-          file.setPathHash(rs.getBytes("pathhash"));
-          file.setParentPathHash(rs.getBytes("parentpathhash"));
-          file.setContentid(rs.getBytes("contentid"));
-          file.setCreatedTime(rs.getTimestamp("createdtime"));
-          file.setCreatedBy(rs.getString("createdby"));
-          file.setUpdatedTime(rs.getTimestamp("updatedtime"));
-          file.setUpdatedBy(rs.getString("updatedby"));
-          file.setContent(rs.getBytes("data"));
+          file = createFile(rs);
         }
       }
     }
+    return file;
+  }
+
+  private File createFile(ResultSet rs) throws SQLException {
+    File file = new File();
+    file.setId(rs.getLong("id"));
+    file.setName(rs.getString("name"));
+    file.setType(FolderType.values()[rs.getInt("type")]);
+    file.setPath(rs.getString("path"));
+    file.setPathHash(rs.getBytes("pathhash"));
+    file.setParentPathHash(rs.getBytes("parentpathhash"));
+    file.setContentid(rs.getBytes("contentid"));
+    file.setCreatedTime(rs.getTimestamp("createdtime"));
+    file.setCreatedBy(rs.getString("createdby"));
+    file.setUpdatedTime(rs.getTimestamp("updatedtime"));
+    file.setUpdatedBy(rs.getString("updatedby"));
+    file.setHistoryId(rs.getLong("historyid"));
+    file.setContent(rs.getBytes("data"));
     return file;
   }
 
@@ -377,6 +405,85 @@ public class FolderStore extends BaseStore {
       }
     }
     return file;
+  }
+
+  public List<FileHistory> getFileHistory(final long id, final int limit, final Connection connection) throws SQLException {
+
+    String sql =
+        "SELECT fh.id, fh.createdtime, c.createdby FROM folder_history fh "
+            + "INNER JOIN content c ON fh.contentid = c.sha2 WHERE fh.folderid = ? ORDER BY fh.createdtime DESC LIMIT ?";
+
+    List<FileHistory> history = new ArrayList();
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setLong(1, id);
+      statement.setInt(2, limit);
+      try (final ResultSet rs = statement.executeQuery()) {
+        while (rs.next()) {
+          FileHistory fh = new FileHistory();
+          fh.setId(rs.getLong("id"));
+          fh.setCreatedBy(rs.getString("createdby"));
+          fh.setCreatedtime(rs.getTimestamp("createdtime"));
+          history.add(fh);
+        }
+      }
+    }
+    return history;
+  }
+
+  public long getDefaultFileHistoryId(long fileId, Connection connection) throws SQLException {
+
+    String sql =
+        "SELECT fh.id FROM folder f INNER JOIN  folder_history fh ON f.id = fh.folderid AND f.contentid = fh.contentid WHERE f.id = ?";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setLong(1, fileId);
+      try (final ResultSet rs = statement.executeQuery()) {
+        while (rs.next()) {
+          return rs.getLong("id");
+        }
+      }
+    }
+    return -1;
+  }
+
+  public FileHistory getFileHistory(
+      final long fileId, final long historyId, final Connection connection) throws SQLException {
+
+    String sql = "SELECT contentid, createdtime FROM folder_history WHERE id = ? AND folderid = ?";
+
+    FileHistory history = null;
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setLong(1, historyId);
+      statement.setLong(2, fileId);
+      try (final ResultSet rs = statement.executeQuery()) {
+        while (rs.next()) {
+          history = new FileHistory();
+          history.setId(historyId);
+          history.setFileid(fileId);
+          history.setContentid(rs.getBytes("contentid"));
+          history.setCreatedtime(rs.getTimestamp("createdtime"));
+        }
+      }
+    }
+    return history;
+  }
+
+  public Content getContentByHistoryId(long historyId, Connection connection) throws SQLException {
+    String sql = "SELECT c.sha2, c.data, c.createdtime, c.createdby FROM folder_history fh " +
+        "INNER JOIN content c ON fh.contentid = c.sha2 WHERE fh.id = ?";
+    Content content = null;
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setLong(1, historyId);
+      try (final ResultSet rs = statement.executeQuery()) {
+        while (rs.next()) {
+          content = new Content();
+          content.setSha2(rs.getBytes("sha2"));
+          content.setData(rs.getBytes("data"));
+          content.setCreatedby(rs.getString("createdby"));
+          content.setCreatedtime(rs.getTimestamp("createdtime"));
+        }
+      }
+    }
+    return content;
   }
 
   public Content getContentById(byte[] sha2, Connection connection) throws SQLException {
@@ -513,4 +620,5 @@ public class FolderStore extends BaseStore {
     }
     return false;
   }
+
 }

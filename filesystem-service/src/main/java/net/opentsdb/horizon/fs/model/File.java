@@ -18,7 +18,12 @@
 package net.opentsdb.horizon.fs.model;
 
 
+import javax.persistence.Transient;
+
 public class File extends Folder {
+
+    @Transient
+    private long historyId;
 
     private byte[] content;
 
@@ -28,5 +33,13 @@ public class File extends Folder {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    public long getHistoryId() {
+        return historyId;
+    }
+
+    public void setHistoryId(long historyId) {
+        this.historyId = historyId;
     }
 }

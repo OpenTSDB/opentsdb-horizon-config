@@ -202,7 +202,10 @@ public class ApplicationFactory {
       zmsClient = new ZMSClient(zmsUrl, athenzSSlContext);
     }
 
-    AuthService authService = new AuthService(namespaceMemberStore, ztsClient, athensDomain);
+    String athenzProviderService = (String) appParams.get("athenzService");
+    String athenzServiceProviderDomain = (String) appParams.get("athenzServiceProviderDomain");
+
+    AuthService authService = new AuthService(namespaceMemberStore, ztsClient, athensDomain, athenzProviderService, athenzServiceProviderDomain);
     NamespaceFollowerService namespaceFollowerService =
         new NamespaceFollowerService(namespaceFollowerStore, authService, namespaceCache);
     NamespaceMemberService namespaceMemberService =
@@ -213,7 +216,9 @@ public class ApplicationFactory {
             ztsClient,
             zmsClient,
             namespaceCache,
-            userCache);
+            userCache,
+            athenzProviderService,
+            athenzServiceProviderDomain);
     NamespaceService namespaceService =
         new NamespaceService(
             namespaceStore,
@@ -235,6 +240,7 @@ public class ApplicationFactory {
             namespaceMemberService,
             namespaceFollowerStore,
             namespaceCache,
+            userCache,
             authService,
             userStore,
             digest,

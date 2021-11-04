@@ -53,6 +53,8 @@ public class NamespaceMemberServiceTest {
   @Injectable private ZMSClient zmsClient;
   @Injectable private NamespaceCache namespaceCache;
   @Injectable private UserCache userCache;
+  @Injectable private String providerDomain;
+  @Injectable private String providerService;
 
   @Mocked private Connection connection;
 

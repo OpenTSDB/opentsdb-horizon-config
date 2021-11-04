@@ -18,6 +18,7 @@
 package net.opentsdb.horizon.service;
 
 import net.opentsdb.horizon.NamespaceCache;
+import net.opentsdb.horizon.UserCache;
 import net.opentsdb.horizon.fs.Path;
 import net.opentsdb.horizon.fs.Path.PathException;
 import net.opentsdb.horizon.fs.Path.RootType;
@@ -26,7 +27,10 @@ import net.opentsdb.horizon.fs.model.File;
 import net.opentsdb.horizon.fs.model.FileHistory;
 import net.opentsdb.horizon.fs.model.Folder;
 import net.opentsdb.horizon.fs.store.FolderStore;
+import net.opentsdb.horizon.fs.view.ContentDto;
 import net.opentsdb.horizon.fs.view.FileDto;
+import net.opentsdb.horizon.fs.view.FileHistoryDto;
+import net.opentsdb.horizon.fs.view.FileHistoryListDto;
 import net.opentsdb.horizon.fs.view.FolderDto;
 import net.opentsdb.horizon.fs.view.FolderType;
 import net.opentsdb.horizon.model.Namespace;
@@ -49,7 +53,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.opentsdb.horizon.service.BaseService.badRequestException;
@@ -71,16 +77,18 @@ public class DashboardService {
   private final NamespaceMemberService namespaceMemberService;
   private final NamespaceFollowerStore namespaceFollowerStore;
   private final NamespaceCache namespaceCache;
+  private final UserCache userCache;
   private final AuthService authService;
-  private UserStore userStore;
+  private final UserStore userStore;
   private final MessageDigest digest;
-  private DashboardActivityJobScheduler activityJobScheduler;
+  private final DashboardActivityJobScheduler activityJobScheduler;
 
   public DashboardService(
       final FolderStore folderStore,
       final NamespaceMemberService namespaceMemberService,
       final NamespaceFollowerStore namespaceFollowerStore,
-      NamespaceCache namespaceCache,
+      final NamespaceCache namespaceCache,
+      final UserCache userCache,
       final AuthService authService,
       final UserStore userStore,
       final MessageDigest digest,
@@ -90,6 +98,7 @@ public class DashboardService {
     this.namespaceMemberService = namespaceMemberService;
     this.namespaceFollowerStore = namespaceFollowerStore;
     this.namespaceCache = namespaceCache;
+    this.userCache = userCache;
     this.authService = authService;
     this.userStore = userStore;
     this.digest = digest;
@@ -417,21 +426,104 @@ public class DashboardService {
     }
   }
 
-  public FileDto getFileById(final long id, final String userId) {
+  public FileDto getFileById(final long id, final long historyId, final String userId) {
     try (Connection connection = folderStore.getReadOnlyConnection()) {
-      File model = folderStore.getFileAndContentById(FolderType.DASHBOARD, id, connection);
-      if (null == model) {
-        throw notFoundException("Dashboard not found with id: " + id);
-      }
-      boolean favorite = folderStore.isFavorite(userId, id, connection);
-      activityJobScheduler.addActivity(id, userId);
-      FileDto view = modelToView(model);
-      view.setFavorite(favorite);
-      return view;
+      return doGetFileDto(id, historyId, userId, connection);
     } catch (SQLException | IOException e) {
       String message = "Error reading dashboard with id: " + id;
       LOGGER.error(message, e);
       throw internalServerError(message);
+    }
+  }
+
+  private FileDto doGetFileDto(long id, long historyId, String userId, Connection connection)
+      throws SQLException, IOException {
+    File model;
+    if (historyId > 0) {
+      model =
+          folderStore.getFileAndContentByHistoryId(FolderType.DASHBOARD, id, historyId, connection);
+    } else {
+      model = folderStore.getFileAndContentById(FolderType.DASHBOARD, id, connection);
+    }
+
+    if (model == null) {
+      StringBuilder sb = new StringBuilder("Dashboard not found with id: ").append(id);
+      if (historyId > 0) {
+        sb.append(" and historyId: ").append(historyId);
+      }
+      throw notFoundException(sb.toString());
+    }
+
+    boolean favorite = folderStore.isFavorite(userId, id, connection);
+    activityJobScheduler.addActivity(id, userId);
+    FileDto view = modelToView(model);
+    view.setFavorite(favorite);
+    return view;
+  }
+
+  public FileHistoryListDto getFileHistory(final long id) {
+    try (Connection connection = folderStore.getReadOnlyConnection()) {
+      List<FileHistory> fileHistory = folderStore.getFileHistory(id, 50, connection);
+      if (fileHistory.isEmpty()) {
+        throw notFoundException("Dashboard not found with id: " + id);
+      }
+      FileHistoryListDto view = viewToModel(fileHistory);
+      view.setFileId(id);
+      long historyId = folderStore.getDefaultFileHistoryId(id, connection);
+      view.setDefaultHistoryId(historyId);
+      return view;
+    } catch (SQLException e) {
+      String message = "Error reading history for dashboard with id: " + id;
+      LOGGER.error(message, e);
+      throw internalServerError(message);
+    }
+  }
+
+  public ContentDto getFileContent(final long historyId) {
+    try (Connection connection = folderStore.getReadOnlyConnection()) {
+      Content content = folderStore.getContentByHistoryId(historyId, connection);
+      if (content == null) {
+        throw notFoundException("Content not found with history id: " + historyId);
+      }
+      return modelToView(content);
+    } catch (SQLException | IOException e) {
+      String message = "Error reading content for history with id: " + historyId;
+      LOGGER.error(message, e);
+      throw internalServerError(message);
+    }
+  }
+
+  public FileDto setDefaultContent(long id, long historyId, String userId) {
+    String errorMessage = "Error setting dashboard content";
+    try (Connection con = folderStore.getReadWriteConnection()) {
+      try {
+        File file = folderStore.getFileById(FolderType.DASHBOARD, id, con);
+        if (file == null) {
+          String message = "File not found with id: " + id;
+          throw notFoundException(message);
+        }
+
+        Path path = Path.get(file.getPath());
+        checkAccess(path, userId);
+        FileHistory fileHistory = folderStore.getFileHistory(id, historyId, con);
+        if (fileHistory == null) {
+          throw badRequestException("Invalid historyId");
+        }
+        file.setContent(fileHistory.getContentid());
+        file.setUpdatedBy(userId);
+        file.setUpdatedTime(new Timestamp(System.currentTimeMillis()));
+        folderStore.updateFile(file, con);
+        return doGetFileDto(id, historyId, userId, con);
+      } catch (Exception e) {
+        folderStore.rollback(con);
+        throw e;
+      }
+    } catch (PathException e) {
+      LOGGER.error(errorMessage, e);
+      throw badRequestException(e.getMessage());
+    } catch (SQLException | IOException e) {
+      LOGGER.error(errorMessage, e);
+      throw internalServerError(errorMessage);
     }
   }
 
@@ -738,6 +830,38 @@ public class DashboardService {
     }
   }
 
+  private FileHistoryListDto viewToModel(List<FileHistory> models) {
+    List<FileHistoryDto> viewList = new ArrayList<>();
+    Map<String, String> userNameMap = new HashMap<>();
+    for (int i = 0; i < models.size(); i++) {
+      FileHistory model = models.get(i);
+      FileHistoryDto view = new FileHistoryDto();
+      view.setId(model.getId());
+      view.setContentId(model.getContentid());
+      view.setCreatedTime(model.getCreatedtime());
+      String userId = model.getCreatedBy();
+      view.setCreatorId(userId);
+
+      userNameMap.putIfAbsent(userId, userCache.getById(userId).getName());
+      viewList.add(view);
+    }
+    FileHistoryListDto listDto = new FileHistoryListDto();
+    listDto.setHistories(viewList);
+    listDto.setUserNames(userNameMap);
+    return listDto;
+  }
+
+  private ContentDto modelToView(Content model) throws IOException {
+    byte[] compressed = model.getData();
+    byte[] decompressed = decompress(compressed);
+    Object deSerialized = deSerialize(decompressed, Object.class);
+    ContentDto view = new ContentDto();
+    view.setContent(deSerialized);
+    view.setCreatedBy(model.getCreatedby());
+    view.setCreatedTime(model.getCreatedtime());
+    return view;
+  }
+
   private FolderDto modelToView(Folder model) {
     FolderDto dto = new FolderDto();
     modelToView(model, dto);
@@ -752,6 +876,7 @@ public class DashboardService {
       byte[] decompressed = decompress(compressed);
       Object deSerialized = deSerialize(decompressed, Object.class);
       dto.setContent(deSerialized);
+      dto.setHistoryId(model.getHistoryId());
     }
     return dto;
   }
@@ -802,4 +927,5 @@ public class DashboardService {
     byte[] sha2 = digest.digest(serialized);
     return new Content(sha2, compress(serialized));
   }
+
 }
