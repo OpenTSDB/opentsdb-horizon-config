@@ -82,9 +82,13 @@ public class BatchContact {
     this.oc = oc;
   }
 
-  public List<PagerDutyContact> getPagerduty() { return pagerduty; }
+  public List<PagerDutyContact> getPagerduty() {
+    return pagerduty;
+  }
 
-  public void setPagerduty(List<PagerDutyContact> pagerduty) { this.pagerduty = pagerduty; }
+  public void setPagerduty(List<PagerDutyContact> pagerduty) {
+    this.pagerduty = pagerduty;
+  }
 
   public int getNamespaceId() {
     return namespaceid;
