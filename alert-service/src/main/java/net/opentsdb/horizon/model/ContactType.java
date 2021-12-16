@@ -22,7 +22,8 @@ public enum ContactType {
   slack((byte) 1),
   opsgenie((byte) 2),
   http((byte) 3),
-  oc((byte) 4);
+  oc((byte) 4),
+  pagerduty((byte) 5);
 
   private final byte id;
 
@@ -46,6 +47,8 @@ public enum ContactType {
         return http;
       case 4:
         return oc;
+      case 5:
+        return pagerduty;
       default:
         throw new IllegalStateException("No ContactType for id " + id);
     }

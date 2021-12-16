@@ -28,6 +28,7 @@ import net.opentsdb.horizon.store.ContactStore;
 import net.opentsdb.horizon.store.SnoozeStore;
 import net.opentsdb.horizon.view.BatchContact;
 import net.opentsdb.horizon.view.EmailContact;
+import net.opentsdb.horizon.view.PagerDutyContact;
 import net.opentsdb.horizon.view.SlackContact;
 import net.opentsdb.horizon.view.SnoozeView;
 
@@ -274,6 +275,18 @@ public class SnoozeService extends AuthenticatedBaseService<SnoozeView, Snooze, 
         Integer contactId = contactMap.get(ContactType.slack + slackContact.getName());
         if (contactId == null) {
           throw new IllegalStateException("Contact does not exist" + slackContact);
+        } else {
+          contactids.add(contactId);
+        }
+      }
+    }
+
+    List<PagerDutyContact> pagerDutyContacts = batchContact.getPagerduty();
+    if (pagerDutyContacts != null) {
+      for (PagerDutyContact pagerDutyContact : pagerDutyContacts) {
+        Integer contactId = contactMap.get(ContactType.pagerduty + pagerDutyContact.getName());
+        if (contactId == null) {
+          throw new IllegalStateException("Contact does not exist" + pagerDutyContact);
         } else {
           contactids.add(contactId);
         }

@@ -24,6 +24,7 @@ import net.opentsdb.horizon.view.EmailContact;
 import net.opentsdb.horizon.view.HttpContact;
 import net.opentsdb.horizon.view.OCContact;
 import net.opentsdb.horizon.view.OpsGenieContact;
+import net.opentsdb.horizon.view.PagerDutyContact;
 import net.opentsdb.horizon.view.SlackContact;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class BatchContactConverter extends BaseConverter<BatchContact, List<Cont
   public final static String CUSTOMER = "customer";
   public final static String CONTEXT = "context";
   public final static String OPSDB_PROPERTY = "opsdbproperty";
+  public final static String PAGERDUTY_ROUTEING_KEY = "routingkey";
 
 
   @Override
@@ -137,6 +139,24 @@ public class BatchContactConverter extends BaseConverter<BatchContact, List<Cont
         contacts.add(contact);
       }
     }
+
+    List<PagerDutyContact> pagerDutyContacts = batchContact.getPagerduty();
+    if (pagerDutyContacts != null) {
+      for (PagerDutyContact pagerdutyContact: pagerDutyContacts ) {
+        Contact contact = new Contact();
+        contact.setId(pagerdutyContact.getId());
+        contact.setName(pagerdutyContact.getName());
+        contact.setNewName(pagerdutyContact.getNewname());
+
+        contact.setType(ContactType.pagerduty);
+        Map<String, String> details = new HashMap<>();
+        details.put(PAGERDUTY_ROUTEING_KEY, pagerdutyContact.getRoutingkey());
+        contact.setDetails(details);
+        contact.setNamespaceid(namespaceId);
+
+        contacts.add(contact);
+      }
+    }
     return contacts;
   }
 
@@ -214,6 +234,18 @@ public class BatchContactConverter extends BaseConverter<BatchContact, List<Cont
           batchContact.setOc(ocContacts);
         }
         ocContacts.add(ocContact);
+      } else if (contact.getType() == ContactType.pagerduty) {
+        PagerDutyContact pagerdutyContact = new PagerDutyContact();
+        pagerdutyContact.setId(contact.getId());
+        pagerdutyContact.setName(name);
+        pagerdutyContact.setRoutingkey(details.get(PAGERDUTY_ROUTEING_KEY));
+
+        List<PagerDutyContact> pagerDutyContacts = batchContact.getPagerduty();
+        if (pagerDutyContacts == null) {
+          pagerDutyContacts = new ArrayList<>();
+          batchContact.setPagerduty(pagerDutyContacts);
+        }
+        pagerDutyContacts.add(pagerdutyContact);
 
       } else {
         throw new IllegalArgumentException("Not a valid contact type");
