@@ -37,6 +37,8 @@ public class BatchContact {
 
   List<OCContact> oc;
 
+  List<PagerDutyContact> pagerduty;
+
   @JsonIgnore
   private int namespaceid;
 
@@ -78,6 +80,14 @@ public class BatchContact {
 
   public void setOc(List<OCContact> oc) {
     this.oc = oc;
+  }
+
+  public List<PagerDutyContact> getPagerduty() {
+    return pagerduty;
+  }
+
+  public void setPagerduty(List<PagerDutyContact> pagerduty) {
+    this.pagerduty = pagerduty;
   }
 
   public int getNamespaceId() {

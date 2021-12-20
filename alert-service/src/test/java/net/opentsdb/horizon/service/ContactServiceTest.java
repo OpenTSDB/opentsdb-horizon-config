@@ -26,6 +26,7 @@ import net.opentsdb.horizon.store.NamespaceStore;
 import net.opentsdb.horizon.view.BatchContact;
 import net.opentsdb.horizon.view.EmailContact;
 import net.opentsdb.horizon.view.OCContact;
+import net.opentsdb.horizon.view.PagerDutyContact;
 import net.opentsdb.horizon.view.SlackContact;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -119,6 +120,10 @@ public class ContactServiceTest {
     ocContact.setDisplaycount("1");
     ocContact.setOpsdbproperty("myns");
 
+    PagerDutyContact pdContact = new PagerDutyContact();
+    pdContact.setName("opentsdb-team");
+    pdContact.setRoutingkey("test-key");
+
     BatchContact batchContact = new BatchContact();
     batchContact.setEmail(
         new ArrayList<EmailContact>() {
@@ -136,6 +141,12 @@ public class ContactServiceTest {
         new ArrayList<OCContact>() {
           {
             add(ocContact);
+          }
+        });
+    batchContact.setPagerduty(
+        new ArrayList<PagerDutyContact>() {
+          {
+            add(pdContact);
           }
         });
 
@@ -165,6 +176,7 @@ public class ContactServiceTest {
     assertEquals(contactList.getEmail().size(), 1);
     assertEquals(contactList.getSlack().size(), 1);
     assertEquals(contactList.getOc().size(), 1);
+    assertEquals(contactList.getPagerduty().size(), 1);
   }
 
 }

@@ -31,6 +31,7 @@ import net.opentsdb.horizon.view.EmailContact;
 import net.opentsdb.horizon.view.HttpContact;
 import net.opentsdb.horizon.view.OCContact;
 import net.opentsdb.horizon.view.OpsGenieContact;
+import net.opentsdb.horizon.view.PagerDutyContact;
 import net.opentsdb.horizon.view.SlackContact;
 
 import java.io.IOException;
@@ -156,6 +157,14 @@ public class AlertService extends AuthenticatedBaseService<AlertView, Alert, Ale
         incomingContactIds.add(ocContact.getId());
       }
     }
+
+    List<PagerDutyContact> pagerDutyContacts = batchContact.getPagerduty();
+    if (pagerDutyContacts != null) {
+      for(PagerDutyContact pagerDutyContact: pagerDutyContacts) {
+        incomingContactIds.add(pagerDutyContact.getId());
+      }
+    }
+
 
     List<Integer> idsToAdd = new ArrayList<>(incomingContactIds);
     List<Integer> existingContactIds = store.getContactIds(alert.getId(), connection);
