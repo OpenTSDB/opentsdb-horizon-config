@@ -46,6 +46,8 @@ import static net.opentsdb.horizon.util.Utils.isNullOrEmpty;
 public class ContactService
     extends AuthenticatedBaseService<BatchContact, List<Contact>, BatchContactConverter> {
 
+  public static final String SO_SERVICE = "HZ_CONTACT_SERVICE";
+
   private final NamespaceMemberService namespaceMemberService;
   private ContactStore store;
   private String adminEmailDomain;

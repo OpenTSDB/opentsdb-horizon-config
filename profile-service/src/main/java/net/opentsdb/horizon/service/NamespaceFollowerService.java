@@ -40,6 +40,8 @@ public class NamespaceFollowerService {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(net.opentsdb.horizon.service.NamespaceMemberService.class);
 
+  public static final String SO_SERVICE = "HZ_NAMESPACE_FOLLOWER_SERVICE";
+
   private final NamespaceFollowerStore store;
 
   private final AuthService authService;

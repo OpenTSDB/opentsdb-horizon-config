@@ -30,6 +30,8 @@ import java.util.List;
 
 public class ContentService extends BaseService<Object, Content, ContentConverter> {
 
+  public static final String SO_SERVICE = "HZ_CONTENT_SERVICE";
+
   private final ContentStore store;
 
   public ContentService(final MessageDigest digest, final ContentStore store) {

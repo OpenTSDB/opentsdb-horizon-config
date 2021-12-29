@@ -67,6 +67,8 @@ public class DashboardService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DashboardService.class);
 
+  public static String SO_SERVICE = "HZ_DASHBOARD_SERVICE";
+
   private final FolderStore folderStore;
   private final NamespaceMemberService namespaceMemberService;
   private final NamespaceFollowerStore namespaceFollowerStore;

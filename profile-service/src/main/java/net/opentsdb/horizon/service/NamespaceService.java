@@ -49,6 +49,8 @@ public class NamespaceService extends ProfileService<Namespace, Namespace, Names
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceService.class);
 
+  public static final String SO_SERVICE = "HZ_NAMESPACE_SERVICE";
+
   public static final String GIT_CONFIG_URL = "gitConfigUrl";
   public static final String JIRA_PROJECT_NAME = "jiraProjectName";
   public static final String EMAILID = "emailId";

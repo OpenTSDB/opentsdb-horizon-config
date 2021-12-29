@@ -20,9 +20,12 @@ plugins {
 }
 
 dependencies {
+    def opentsdbVersion = '3.0.90-SNAPSHOT'
+
     api group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1.1'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation group: 'io.swagger', name: 'swagger-jaxrs', version: '1.6.2'
     implementation 'javax.persistence:javax.persistence-api:2.2'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    implementation group: 'net.opentsdb', name: 'opentsdb-servlet', version: opentsdbVersion
 }

@@ -17,6 +17,9 @@
 
 package net.opentsdb.horizon.resource;
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.NamespaceCache;
 import net.opentsdb.horizon.model.Namespace;
 import net.opentsdb.horizon.service.AlertService;
@@ -24,6 +27,7 @@ import net.opentsdb.horizon.view.AlertView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import net.opentsdb.servlet.resources.ServletResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -45,14 +49,47 @@ import static net.opentsdb.horizon.profile.Utils.validateNamespace;
 
 @Api("Namespace Alerts")
 @Path("v1/namespace/{namespace}/alert")
-public class NamespaceAlertResource {
+public class NamespaceAlertResource extends BaseTSDBPlugin implements ServletResource {
+  private static final String TYPE = "NamespaceAlertResource";
 
-  private final AlertService service;
-  private final NamespaceCache namespaceCache;
+  private AlertService service;
+  private NamespaceCache namespaceCache;
 
-  public NamespaceAlertResource(final AlertService service, final NamespaceCache namespaceCache) {
+  public NamespaceAlertResource() {
+
+  }
+
+  public NamespaceAlertResource(final AlertService service,
+                                final NamespaceCache namespaceCache) {
     this.service = service;
     this.namespaceCache = namespaceCache;
+  }
+
+  @Override
+  public Deferred<Object> initialize(TSDB tsdb, String id) {
+    this.tsdb = tsdb;
+    this.id = id;
+
+    Object temp = tsdb.getRegistry().getSharedObject(AlertService.SO_SERVICE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + AlertService.SO_SERVICE
+              + " in the shared objects registry."));
+    }
+    service = (AlertService) temp;
+
+    temp = tsdb.getRegistry().getSharedObject(NamespaceCache.SO_NAMESPACE_CACHE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + NamespaceCache.SO_NAMESPACE_CACHE
+              + " in the shared objects registry."));
+    }
+    namespaceCache = (NamespaceCache) temp;
+
+    return Deferred.fromResult(null);
+  }
+
+  @Override
+  public String type() {
+    return TYPE;
   }
 
   @ApiOperation("Create for a namespace")

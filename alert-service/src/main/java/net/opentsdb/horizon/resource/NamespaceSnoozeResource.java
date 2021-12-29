@@ -17,12 +17,16 @@
 
 package net.opentsdb.horizon.resource;
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.NamespaceCache;
 import net.opentsdb.horizon.model.Namespace;
 import net.opentsdb.horizon.service.SnoozeService;
 import net.opentsdb.horizon.view.SnoozeView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import net.opentsdb.servlet.resources.ServletResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -44,14 +48,47 @@ import static net.opentsdb.horizon.profile.Utils.validateNamespace;
 
 @Api("Snooze at namespace level")
 @Path("v1/namespace/{namespace}/snooze")
-public class NamespaceSnoozeResource {
+public class NamespaceSnoozeResource extends BaseTSDBPlugin implements ServletResource {
+  private static final String TYPE = "NamespaceSnoozeResource";
 
-  private final SnoozeService service;
-  private final NamespaceCache namespaceCache;
+  private SnoozeService service;
+  private NamespaceCache namespaceCache;
 
-  public NamespaceSnoozeResource(final SnoozeService service, final NamespaceCache namespaceCache) {
+  public NamespaceSnoozeResource() {
+
+  }
+
+  public NamespaceSnoozeResource(final SnoozeService service,
+                                 final NamespaceCache namespaceCache) {
     this.service = service;
     this.namespaceCache = namespaceCache;
+  }
+
+  @Override
+  public Deferred<Object> initialize(TSDB tsdb, String id) {
+    this.tsdb = tsdb;
+    this.id = id;
+
+    Object temp = tsdb.getRegistry().getSharedObject(SnoozeService.SO_SERVICE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + SnoozeService.SO_SERVICE
+              + " in the shared objects registry."));
+    }
+    service = (SnoozeService) temp;
+
+    temp = tsdb.getRegistry().getSharedObject(NamespaceCache.SO_NAMESPACE_CACHE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + NamespaceCache.SO_NAMESPACE_CACHE
+              + " in the shared objects registry."));
+    }
+    namespaceCache = (NamespaceCache) temp;
+
+    return Deferred.fromResult(null);
+  }
+
+  @Override
+  public String type() {
+    return TYPE;
   }
 
   @ApiOperation("Create in a namespace")

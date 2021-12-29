@@ -38,9 +38,9 @@ task 'local-db' {
             activities {
                 main {
                     changeLogFile changeLog
-                    url 'jdbc:mysql://localhost/configdb?serverTimezone=UTC'
-                    username 'configdb_deployer'
-                    password 'configdb_deployer'
+                    url 'jdbc:mysql://localhost/opentsdb?serverTimezone=UTC'
+                    username 'tsdb'
+                    password 'testpass'
                 }
             }
         }

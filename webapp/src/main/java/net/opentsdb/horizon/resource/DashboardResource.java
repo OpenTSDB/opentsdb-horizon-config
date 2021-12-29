@@ -18,6 +18,9 @@
 package net.opentsdb.horizon.resource;
 
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.fs.view.FileDto;
 import net.opentsdb.horizon.fs.view.FolderDto;
 import net.opentsdb.horizon.service.DashboardService;
@@ -28,6 +31,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Example;
 import io.swagger.annotations.ExampleProperty;
+import net.opentsdb.servlet.resources.ServletResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Size;
@@ -50,12 +54,37 @@ import static net.opentsdb.horizon.util.Utils.isNullOrEmpty;
 
 @Api("Dashboards")
 @Path("/v1/dashboard")
-public class DashboardResource {
+public class DashboardResource extends BaseTSDBPlugin implements ServletResource {
+    private static final String TYPE = "DashboardResource";
 
-    private final DashboardService dashboardService;
+    private DashboardService dashboardService;
+
+    public DashboardResource() {
+
+    }
 
     public DashboardResource(DashboardService dashboardService) {
         this.dashboardService = dashboardService;
+    }
+
+    @Override
+    public Deferred<Object> initialize(TSDB tsdb, String id) {
+      this.tsdb = tsdb;
+      this.id = id;
+
+      Object temp = tsdb.getRegistry().getSharedObject(DashboardService.SO_SERVICE);
+      if (temp == null) {
+        return Deferred.fromError(new RuntimeException("No " + DashboardService.SO_SERVICE
+                + " in the shared objects registry."));
+      }
+      dashboardService = (DashboardService) temp;
+
+      return Deferred.fromResult(null);
+    }
+
+    @Override
+    public String type() {
+      return TYPE;
     }
 
     @ApiOperation(value = "Create or Update Folder", notes = "If 'id' is not passed in body, It adds a new folder. Otherwise it updates the name of an existing folder "
