@@ -50,6 +50,8 @@ public class SnapshotService extends CommonService<SnapshotView, Snapshot, Snaps
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotService.class);
 
+  public static final String SO_SERVICE = "HZ_SNAPSHOT_SERVICE";
+
   private static final byte NO_SOURCE = 0;
 
   private SnapshotStore store;

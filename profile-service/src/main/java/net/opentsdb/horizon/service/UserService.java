@@ -35,6 +35,8 @@ import java.util.List;
 
 public class UserService extends ProfileService<User, User, UserConverter> {
 
+  public static final String SO_SERVICE = "HZ_USER_SERVICE";
+
   private final UserStore store;
   private FolderStore folderStore;
 

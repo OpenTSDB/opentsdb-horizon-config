@@ -26,16 +26,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.util.concurrent.TimeUnit;
 
 public class NamespaceCache {
 
   private static Logger logger = LoggerFactory.getLogger(NamespaceCache.class);
 
+  public static final String SO_NAMESPACE_CACHE = "HZ_NAMESPACE_CACHE";
+
   private NamespaceStore namespaceStore;
   private Cache<Integer, Namespace> namespaceCache;
   private Cache<String, Namespace> namespaceCacheByName;
 
-  public NamespaceCache(final CacheConfig cacheConfig, final NamespaceStore namespaceStore) {
+  public NamespaceCache(final CacheConfig cacheConfig,
+                        final NamespaceStore namespaceStore) {
     this.namespaceStore = namespaceStore;
     this.namespaceCache =
         CacheBuilder.newBuilder()
@@ -45,6 +49,19 @@ public class NamespaceCache {
         CacheBuilder.newBuilder()
             .expireAfterWrite(cacheConfig.namespaceTTL, cacheConfig.namespaceTTLUnit)
             .build();
+  }
+
+  public NamespaceCache(final int ttlSeconds,
+                        final NamespaceStore namespaceStore) {
+    this.namespaceStore = namespaceStore;
+    this.namespaceCache =
+            CacheBuilder.newBuilder()
+                    .expireAfterWrite(ttlSeconds, TimeUnit.SECONDS)
+                    .build();
+    this.namespaceCacheByName =
+            CacheBuilder.newBuilder()
+                    .expireAfterWrite(ttlSeconds, TimeUnit.SECONDS)
+                    .build();
   }
 
   public Namespace getByName(String namespace) throws Exception {

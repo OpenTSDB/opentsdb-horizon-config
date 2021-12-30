@@ -17,8 +17,12 @@
 
 package net.opentsdb.horizon.resource;
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.service.AlertService;
 import net.opentsdb.horizon.view.AlertView;
+import net.opentsdb.servlet.resources.ServletResource;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -33,12 +37,38 @@ import javax.ws.rs.core.Response;
 
 @Api("Alerts")
 @Path("v1/alert")
-public class AlertResource {
+public class AlertResource extends BaseTSDBPlugin implements ServletResource {
 
-  private final AlertService service;
+  private static final String TYPE = "AlertResource";
+
+  private AlertService service;
+
+  public AlertResource() {
+
+  }
 
   public AlertResource(AlertService service) {
     this.service = service;
+  }
+
+  @Override
+  public Deferred<Object> initialize(TSDB tsdb, String id) {
+    this.tsdb = tsdb;
+    this.id = id;
+
+    Object temp = tsdb.getRegistry().getSharedObject(AlertService.SO_SERVICE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + AlertService.SO_SERVICE
+              + " in the shared objects registry."));
+    }
+    service = (AlertService) temp;
+
+    return Deferred.fromResult(null);
+  }
+
+  @Override
+  public String type() {
+    return TYPE;
   }
 
   @ApiOperation("Get by id")

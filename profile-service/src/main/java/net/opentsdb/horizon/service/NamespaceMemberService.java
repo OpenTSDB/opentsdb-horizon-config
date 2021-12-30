@@ -56,6 +56,8 @@ public class NamespaceMemberService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceMemberService.class);
 
+  public static final String SO_SERVICE = "HZ_NAMESPACE_MEMBER_SERVICE";
+
   private final NamespaceMemberStore memberStore;
   private final NamespaceFollowerStore followerStore;
   private final AuthService authService;

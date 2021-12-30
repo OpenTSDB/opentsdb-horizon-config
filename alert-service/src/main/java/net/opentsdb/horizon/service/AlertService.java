@@ -56,6 +56,8 @@ public class AlertService extends AuthenticatedBaseService<AlertView, Alert, Ale
 
   public static final Integer DEFAULT_VERSION = 0;
 
+  public static String SO_SERVICE = "HZ_ALERT_SERVICE";
+
   private ContactStore contactStore;
   private AlertStore store;
 

@@ -58,6 +58,8 @@ import static java.util.Collections.EMPTY_MAP;
 
 public class SnoozeService extends AuthenticatedBaseService<SnoozeView, Snooze, SnoozeConverter> {
 
+  public static final String SO_SERVICE = "HZ_SNOOZE_SERVICE";
+
   private final ContactStore contactStore;
   private final SnoozeStore snoozeStore;
 

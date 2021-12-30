@@ -26,6 +26,8 @@ testSets {
 }
 
 dependencies {
+    def opentsdbVersion = '3.0.90-SNAPSHOT'
+
     implementation 'org.apache.commons:commons-text'
 
     api project(':profile-service')
@@ -44,6 +46,8 @@ dependencies {
     api group: 'org.hibernate', name: 'hibernate-c3p0', version: '5.4.31.Final'
     api group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '4.5.12.Final'
     api group: 'org.jboss.resteasy', name: 'resteasy-undertow', version: '4.5.12.Final'
+
+    implementation group: 'net.opentsdb', name: 'opentsdb-servlet', version: opentsdbVersion
 
     implementation group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.16.0'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.16.0'

@@ -17,10 +17,14 @@
 
 package net.opentsdb.horizon.resource;
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.service.SnoozeService;
 import net.opentsdb.horizon.view.SnoozeView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import net.opentsdb.servlet.resources.ServletResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -34,12 +38,37 @@ import javax.ws.rs.core.Response;
 
 @Api("Snooze")
 @Path("v1/snooze")
-public class SnoozeResource {
+public class SnoozeResource extends BaseTSDBPlugin implements ServletResource {
+  private static final String TYPE = "SnoozeResource";
 
   private SnoozeService service;
 
+  public SnoozeResource() {
+
+  }
+
   public SnoozeResource(final SnoozeService service) {
     this.service = service;
+  }
+
+  @Override
+  public Deferred<Object> initialize(TSDB tsdb, String id) {
+    this.tsdb = tsdb;
+    this.id = id;
+
+    Object temp = tsdb.getRegistry().getSharedObject(SnoozeService.SO_SERVICE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + SnoozeService.SO_SERVICE
+              + " in the shared objects registry."));
+    }
+    service = (SnoozeService) temp;
+
+    return Deferred.fromResult(null);
+  }
+
+  @Override
+  public String type() {
+    return TYPE;
   }
 
   @ApiOperation("Get by id")

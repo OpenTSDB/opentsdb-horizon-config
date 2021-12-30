@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class UserCache {
 
@@ -37,6 +38,13 @@ public class UserCache {
     public UserCache(CacheConfig cacheConfig, UserStore userStore) {
         this.userStore = userStore;
         this.userCache = CacheBuilder.newBuilder().expireAfterWrite(cacheConfig.userTTL, cacheConfig.userTTLUnit).build();
+    }
+
+    public UserCache(int ttlSeconds, UserStore userStore) {
+        this.userStore = userStore;
+        this.userCache = CacheBuilder.newBuilder().expireAfterWrite(
+                        ttlSeconds, TimeUnit.SECONDS)
+                .build();
     }
 
     public User getById(String id) {

@@ -17,11 +17,15 @@
 
 package net.opentsdb.horizon.resource;
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.service.SnapshotService;
 import net.opentsdb.horizon.view.SnapshotView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import net.opentsdb.servlet.resources.ServletResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -42,12 +46,37 @@ import static net.opentsdb.horizon.util.Utils.isNullOrEmpty;
 
 @Api("Snapshots")
 @Path("v1/snapshot")
-public class SnapshotResource {
+public class SnapshotResource extends BaseTSDBPlugin implements ServletResource {
+  private static final String TYPE = "SnapshotResource";
 
-  private final SnapshotService service;
+  private SnapshotService service;
+
+  public SnapshotResource() {
+
+  }
 
   public SnapshotResource(SnapshotService service) {
     this.service = service;
+  }
+
+  @Override
+  public Deferred<Object> initialize(TSDB tsdb, String id) {
+    this.tsdb = tsdb;
+    this.id = id;
+
+    Object temp = tsdb.getRegistry().getSharedObject(SnapshotService.SO_SERVICE);
+    if (temp == null) {
+      return Deferred.fromError(new RuntimeException("No " + SnapshotService.SO_SERVICE
+              + " in the shared objects registry."));
+    }
+    service = (SnapshotService) temp;
+
+    return Deferred.fromResult(null);
+  }
+
+  @Override
+  public String type() {
+    return TYPE;
   }
 
   @ApiOperation("Create Snapshot")

@@ -17,12 +17,16 @@
 
 package net.opentsdb.horizon.resource;
 
+import com.stumbleupon.async.Deferred;
+import net.opentsdb.core.BaseTSDBPlugin;
+import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.model.Namespace;
 import net.opentsdb.horizon.service.NamespaceFollowerService;
 import net.opentsdb.horizon.service.NamespaceMemberService;
 import net.opentsdb.horizon.service.NamespaceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import net.opentsdb.servlet.resources.ServletResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
@@ -46,11 +50,16 @@ import static net.opentsdb.horizon.util.Utils.isNullOrEmpty;
 
 @Api("Namespace")
 @Path("/v1/namespace")
-public class NamespaceResource {
+public class NamespaceResource extends BaseTSDBPlugin implements ServletResource {
+    private static final String TYPE = "NamespaceResource";
 
-    private final NamespaceService service;
-    private final NamespaceMemberService namespaceMemberService;
-    private final NamespaceFollowerService followerService;
+    private NamespaceService service;
+    private NamespaceMemberService namespaceMemberService;
+    private NamespaceFollowerService followerService;
+
+    public NamespaceResource() {
+
+    }
 
     public NamespaceResource(final NamespaceService service,
                              final NamespaceMemberService namespaceMemberService,
@@ -58,6 +67,39 @@ public class NamespaceResource {
         this.service = service;
         this.namespaceMemberService = namespaceMemberService;
         this.followerService = followerService;
+    }
+
+    public Deferred<Object> initialize(TSDB tsdb, String id) {
+        this.tsdb = tsdb;
+        this.id = id;
+
+        Object temp = tsdb.getRegistry().getSharedObject(NamespaceService.SO_SERVICE);
+        if (temp == null) {
+            return Deferred.fromError(new RuntimeException("No " + NamespaceService.SO_SERVICE
+                    + " in the shared objects registry."));
+        }
+        service = (NamespaceService) temp;
+
+        temp = tsdb.getRegistry().getSharedObject(NamespaceMemberService.SO_SERVICE);
+        if (temp == null) {
+            return Deferred.fromError(new RuntimeException("No " + NamespaceMemberService.SO_SERVICE
+                    + " in the shared objects registry."));
+        }
+        namespaceMemberService = (NamespaceMemberService) temp;
+
+        temp = tsdb.getRegistry().getSharedObject(NamespaceFollowerService.SO_SERVICE);
+        if (temp == null) {
+            return Deferred.fromError(new RuntimeException("No " + NamespaceFollowerService.SO_SERVICE
+                    + " in the shared objects registry."));
+        }
+        followerService = (NamespaceFollowerService) temp;
+
+        return Deferred.fromResult((Object)null);
+    }
+
+    @Override
+    public String type() {
+        return TYPE;
     }
 
     @ApiOperation("Get All Namespaces")
