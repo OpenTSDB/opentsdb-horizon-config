@@ -163,9 +163,9 @@ UI to manage dashboards for a default user. Here are the steps to get it running
          - plugin: net.opentsdb.threadpools.UserAwareThreadPoolExecutor
            isDefault: true
            type: net.opentsdb.threadpools.TSDBThreadPoolExecutor
-         - plugin: net.opentsdb.horizon.SharedMySQLPool
+         - plugin: net.opentsdb.horizon.SharedJDBCPool
            isDefault: true
-           type: net.opentsdb.horizon.SharedMySQLPool
+           type: net.opentsdb.horizon.SharedJDBCPool
          - plugin: net.opentsdb.horizon.service.HorizonConfigServices
            isDefault: true
            type: net.opentsdb.horizon.service.HorizonConfigServices

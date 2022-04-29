@@ -28,7 +28,7 @@ import net.opentsdb.core.BaseTSDBPlugin;
 import net.opentsdb.core.Registry;
 import net.opentsdb.core.TSDB;
 import net.opentsdb.horizon.NamespaceCache;
-import net.opentsdb.horizon.SharedMySQLPool;
+import net.opentsdb.horizon.SharedJDBCPool;
 import net.opentsdb.horizon.UserCache;
 import net.opentsdb.horizon.fs.store.FolderStore;
 import net.opentsdb.horizon.store.ActivityStore;
@@ -122,7 +122,7 @@ public class HorizonConfigServices extends BaseTSDBPlugin {
 
     final Configuration config = tsdb.getConfig();
     final String dbId = config.getString(getConfigKey(DB_KEY));
-    final SharedMySQLPool dbPool = tsdb.getRegistry().getPlugin(SharedMySQLPool.class,
+    final SharedJDBCPool dbPool = tsdb.getRegistry().getPlugin(SharedJDBCPool.class,
             dbId);
     if (dbPool == null) {
       LOG.error("Cannot instantiate the Horizon config services without a DB pool. " +

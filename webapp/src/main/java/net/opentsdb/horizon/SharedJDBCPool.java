@@ -30,12 +30,12 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 
-public class SharedMySQLPool extends BaseTSDBPlugin {
-  private static final Logger LOG = LoggerFactory.getLogger(SharedMySQLPool.class);
+public class SharedJDBCPool extends BaseTSDBPlugin {
+  private static final Logger LOG = LoggerFactory.getLogger(SharedJDBCPool.class);
 
-  public static final String TYPE = "SharedMySQLPool";
+  public static final String TYPE = "SharedJDBCPool";
 
-  public static final String KEY_PREFIX = "mysqlpool.";
+  public static final String KEY_PREFIX = "jdbcpool.";
 
   public static final String RO_USER_KEY = "read.user";
   public static final String RO_PASS_KEY_KEY = "read.secret.key";
