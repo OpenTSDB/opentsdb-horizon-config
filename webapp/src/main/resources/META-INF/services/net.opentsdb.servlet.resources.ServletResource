@@ -1,9 +1,1 @@
-net.opentsdb.horizon.resource.AlertResource
-net.opentsdb.horizon.resource.ContactsResource
 net.opentsdb.horizon.resource.DashboardResource
-net.opentsdb.horizon.resource.NamespaceAlertResource
-net.opentsdb.horizon.resource.NamespaceResource
-net.opentsdb.horizon.resource.NamespaceSnoozeResource
-net.opentsdb.horizon.resource.SnapshotResource
-net.opentsdb.horizon.resource.SnoozeResource
-net.opentsdb.horizon.resource.UserResource
