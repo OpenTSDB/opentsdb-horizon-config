@@ -1,0 +1,2 @@
+net.opentsdb.horizon.resource.NamespaceResource
+net.opentsdb.horizon.resource.UserResource
