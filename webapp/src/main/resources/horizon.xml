@@ -151,7 +151,7 @@
       `updatedby` VARCHAR(128) NOT NULL DEFAULT '',
       `updatedtime` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
       PRIMARY KEY (`id`),
-      UNIQUE INDEX `uq_namespace_name` (`namespaceid`, `name`),
+      UNIQUE INDEX `uq_alert_namespace_name` (`namespaceid`, `name`),
       CONSTRAINT `fk_alert_namespace`
       FOREIGN KEY (`namespaceid`)
       REFERENCES `namespace` (`id`)
@@ -179,8 +179,9 @@
   <changeSet author="smrutis" id="3">
     <sql>
       ALTER TABLE `content` MODIFY `data` MEDIUMBLOB NOT NULL;
-      ALTER TABLE `folder_history` ADD KEY (`folderid`), DROP PRIMARY KEY, ADD `id` BIGINT UNSIGNED NOT NULL
-      AUTO_INCREMENT, ADD PRIMARY KEY (`id`);
+      ALTER TABLE `folder_history` DROP PRIMARY KEY;
+      ALTER TABLE `folder_history` ADD `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+      ALTER TABLE `folder_history` ADD PRIMARY KEY (`id`);
     </sql>
     <comment>support larger dashboards</comment>
   </changeSet>

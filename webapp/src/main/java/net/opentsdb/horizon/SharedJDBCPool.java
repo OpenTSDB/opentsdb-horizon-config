@@ -1,6 +1,6 @@
 /*
  * This file is part of OpenTSDB.
- *  Copyright (C) 2021 Yahoo.
+ *  Copyright (C) 2021-2022 Yahoo.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,14 @@ package net.opentsdb.horizon;
 import com.google.common.collect.Maps;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.stumbleupon.async.Deferred;
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import liquibase.resource.ResourceAccessor;
 import net.opentsdb.configuration.Configuration;
 import net.opentsdb.configuration.ConfigurationEntrySchema;
 import net.opentsdb.core.BaseTSDBPlugin;
@@ -28,7 +36,11 @@ import net.opentsdb.utils.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 
 public class SharedJDBCPool extends BaseTSDBPlugin {
   private static final Logger LOG = LoggerFactory.getLogger(SharedJDBCPool.class);
@@ -72,18 +84,87 @@ public class SharedJDBCPool extends BaseTSDBPlugin {
     final Configuration config = tsdb.getConfig();
 
     try {
-      roDataSource = createPooledDataSource(
-              config.getString(getConfigKey(RO_USER_KEY)),
-              config.getSecretString(config.getString(getConfigKey(RO_PASS_KEY_KEY))),
-              config.getString(getConfigKey(RO_URL_KEY)));
+      if (config.getString(getConfigKey(RO_URL_KEY)) == null ||
+          config.getString(getConfigKey(RO_URL_KEY)).isEmpty()) {
+        roDataSource = createPooledDataSource(
+            config.getString(getConfigKey(RW_USER_KEY)),
+            config.getSecretString(config.getString(getConfigKey(RW_PASS_KEY_KEY))),
+            config.getString(getConfigKey(RW_URL_KEY)));
+      } else{
+        roDataSource = createPooledDataSource(
+            config.getString(getConfigKey(RO_USER_KEY)),
+            config.getSecretString(config.getString(getConfigKey(RO_PASS_KEY_KEY))),
+            config.getString(getConfigKey(RO_URL_KEY)));
+      }
 
       rwDataSource = createPooledDataSource(
               config.getString(getConfigKey(RW_USER_KEY)),
               config.getSecretString(config.getString(getConfigKey(RW_PASS_KEY_KEY))),
               config.getString(getConfigKey(RW_URL_KEY)));
     } catch (SQLException e) {
-      LOG.error("Failed to initialize the shared MySQL pool", e);
+      LOG.error("Failed to initialize the shared JDBC pool", e);
       return Deferred.fromError(e);
+    }
+
+    // When using H2 for the all in one mode, we need to setup the schema.
+    if (config.getString(getConfigKey(RW_URL_KEY))
+              .toLowerCase(Locale.ROOT)
+              .contains("jdbc:h2")) {
+      try {
+        ResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor();
+        Database database = DatabaseFactory.getInstance()
+            .openDatabase(
+                config.getString(getConfigKey(RW_URL_KEY)),
+                config.getString(getConfigKey(RW_USER_KEY)),
+                config.getSecretString(config.getString(getConfigKey(RW_PASS_KEY_KEY))),
+                null, null, null, null, resourceAccessor
+            );
+
+        Liquibase lq = new Liquibase("/horizon.xml", resourceAccessor, database);
+        lq.update(new Contexts());
+        LOG.info("Synchronized schema for H2.");
+
+        // create a default user and namespace if the DB is empty and has just been initialized.
+        try (final Connection c = rwDataSource.getConnection()) {
+          try (final ResultSet rs = c.prepareStatement("SELECT COUNT(*) AS cnt FROM user")
+              .executeQuery()) {
+            if (!rs.next() || rs.getInt("cnt") < 1) {
+              LOG.info("Adding default user and namespace to H2 DB.");
+              tsdb.getConfig().register("horizon.config.h2.initialize", true, false,
+                  "Flag to tell HorizonConfigServices we need to initialize.");
+
+              // note that we just add the namespace here as it doesn't have any
+              // knock-on effects.
+              // For the user, we do that in HorizonConfigServices where we use the
+              // UserService to initialize the proper directories, etc.
+              final String namespace = "_default";
+              final PreparedStatement statement = c.prepareStatement(
+                  "INSERT INTO namespace (name, alias, meta, enabled, createdby, updatedby) values (?, ?, ?, ?, ?, ?)");
+              statement.setString(1, namespace);
+              statement.setString(2, namespace);
+              statement.setString(3, "{}");
+              statement.setInt(4, 1);
+              statement.setString(5, "opentsdb");
+              statement.setString(6, "opentsdb");
+              if (statement.execute()) {
+                LOG.info("Successfully added namespace '" + namespace + "'");
+              } else {
+                LOG.warn("Failed to create namespace '" + namespace + "'");
+              }
+            }
+          }
+
+        } catch (SQLException e) {
+          LOG.error("Failed to initialize setup the H2 schema", e);
+          return Deferred.fromError(e);
+        }
+      } catch (DatabaseException e) {
+        LOG.error("Failed to initialize setup the H2 schema", e);
+        return Deferred.fromError(e);
+      } catch (LiquibaseException e) {
+        LOG.error("Failed to initialize setup the H2 schema", e);
+        return Deferred.fromError(e);
+      }
     }
 
     return Deferred.fromResult(null);
@@ -137,7 +218,7 @@ public class SharedJDBCPool extends BaseTSDBPlugin {
               "The key to use to fetch the password for the read only database connections.");
     }
     if (!config.hasProperty(getConfigKey(RO_URL_KEY))) {
-      config.register(getConfigKey(RO_URL_KEY), "jdbc:mysql://localhost/configdb?serverTimezone=UTC", false,
+      config.register(getConfigKey(RO_URL_KEY), null, false,
               "The fully qualified URL to connect over JDBC to the read only database.");
     }
 
