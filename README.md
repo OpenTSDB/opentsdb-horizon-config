@@ -113,7 +113,56 @@ This is still a bit of a work in progress but ConfigDB can run as servlets in th
 OpenTSDB server and work with the [OpenTSDB Horizon](https://github.com/OpenTSDB/opentsdb-horizon)
 UI to manage dashboards for a default user. Here are the steps to get it running.
 
-1. Setup a MySQL server (help us support others!). Tons of resources on how to do this.
+1. **TODO** - Somehow get a collection of the Horizon Config libraries and dependencies
+   in a directory. In the OpenTSDB config (typically `opentsdb.yaml`)  plugins 
+   config section ala:
+   ```yaml
+   pluginLocations:
+       - /usr/share/opentsdb/opentsdb-horizon-config/build/libs
+   ```
+2. Also in the `opentsdb.yaml` config, add the MySQL pool, Horizon service and
+   Horizon config resources (Some day we should be able to load them automatically)
+   e.g.:
+   ```yaml
+     tsd.plugin.config:
+       configs:
+         - plugin: net.opentsdb.threadpools.UserAwareThreadPoolExecutor
+           isDefault: true
+           type: net.opentsdb.threadpools.TSDBThreadPoolExecutor
+         - plugin: net.opentsdb.horizon.SharedJDBCPool
+           isDefault: true
+           type: net.opentsdb.horizon.SharedJDBCPool
+         - plugin: net.opentsdb.horizon.service.HorizonConfigServices
+           isDefault: true
+           type: net.opentsdb.horizon.service.HorizonConfigServices
+   
+         - plugin: net.opentsdb.horizon.resource.DashboardResource
+           id: DashboardResource
+           type: net.opentsdb.servlet.resources.ServletResource
+         - plugin: net.opentsdb.horizon.resource.NamespaceResource
+           id: NamespaceResource
+           type: net.opentsdb.servlet.resources.ServletResource
+         - plugin: net.opentsdb.horizon.resource.UserResource
+           id: UserResource
+           type: net.opentsdb.servlet.resources.ServletResource
+         - plugin: net.opentsdb.horizon.resource.SnapshotResource
+           id: SnapshotResource
+           type: net.opentsdb.servlet.resources.ServletResource
+         - plugin: net.opentsdb.horizon.resource.AlertResource
+           id: AlertResource
+           type: net.opentsdb.servlet.resources.ServletResource
+         - plugin: net.opentsdb.horizon.resource.ContactResource
+           id: ContactResource
+           type: net.opentsdb.servlet.resources.ServletResource
+         ...
+   ```
+
+Now, pick a data store:
+
+### MySQL
+For a production system, use MySQL.
+
+3. Setup a MySQL server (help us support others!). Tons of resources on how to do this.
    1. Setup a database called `opentsdb`, e.g. via `CREATE DATABASE 'opentsdb';`
    2. Create and grant a user full rights to the `opentsdb` database.
    3. Temporarily edit the `schema/build.gradle` file, modifying the `local-db` tasks
@@ -147,59 +196,13 @@ UI to manage dashboards for a default user. Here are the steps to get it running
       :warning: **Do NOT** commit the contents after you edit.
    4. Run `./gradlew local-db update` and it *should* connect and create tables
       in the DB.
-2. **TODO** - Somehow get a collection of the Horizon Config libraries and dependencies
-   in a directory. In the OpenTSDB config (typically `opentsdb.yaml`)  plugins 
-   config section ala:
-   ```yaml
-   pluginLocations:
-       - /usr/share/opentsdb/opentsdb-horizon-config/build/libs
-   ```
-3. Also in the `opentsdb.yaml` config, add the MySQL pool, Horizon service and
-   Horizon config resources (Some day we should be able to load them automatically)
-   e.g.:
-   ```yaml
-     tsd.plugin.config:
-       configs:
-         - plugin: net.opentsdb.threadpools.UserAwareThreadPoolExecutor
-           isDefault: true
-           type: net.opentsdb.threadpools.TSDBThreadPoolExecutor
-         - plugin: net.opentsdb.horizon.SharedJDBCPool
-           isDefault: true
-           type: net.opentsdb.horizon.SharedJDBCPool
-         - plugin: net.opentsdb.horizon.service.HorizonConfigServices
-           isDefault: true
-           type: net.opentsdb.horizon.service.HorizonConfigServices
-   
-         - plugin: net.opentsdb.horizon.resource.DashboardResource
-           id: DashboardResource
-           type: net.opentsdb.servlet.resources.ServletResource
-         - plugin: net.opentsdb.horizon.resource.NamespaceResource
-           id: NamespaceResource
-           type: net.opentsdb.servlet.resources.ServletResource
-         - plugin: net.opentsdb.horizon.resource.UserResource
-           id: UserResource
-           type: net.opentsdb.servlet.resources.ServletResource
-         - plugin: net.opentsdb.horizon.resource.SnapshotResource
-           id: UserResource
-           type: net.opentsdb.servlet.resources.ServletResource
-         - plugin: net.opentsdb.horizon.resource.AlertResource
-           id: UserResource
-           type: net.opentsdb.servlet.resources.ServletResource
-         - plugin: net.opentsdb.horizon.resource.ContactResource
-           id: UserResource
-           type: net.opentsdb.servlet.resources.ServletResource
-         ...
-   ```
+   5. 
 4. Next in the same `opentsdb.yaml` you'll need to set the passwords for the MySQL pool.
    Add the following lines:
    ```yaml
-   mysqlpool.read.user: <DB_USER>
-   mysqlpool.read.secret.key: PT:dbpass
-   mysqlpool.read.url: jdbc:mysql://<DB_HOSTNAME>/opentsdb?serverTimezone=UTC
-   
-   mysqlpool.write.user: <DB_USER>
-   mysqlpool.write.secret.key: PT:dbpass
-   mysqlpool.write.url: jdbc:mysql://<DB_HOSTNAME>/opentsdb?serverTimezone=UTC
+   jdbcpool.write.user: <DB_USER>
+   jdbcpool.write.secret.key: PT:dbpass
+   jdbcpool.write.url: jdbc:mysql://<DB_HOSTNAME>/opentsdb?serverTimezone=UTC
    
    # NOTE: This is the insecure plain-text password. Use a proper secrets plugin.
    dbpass: <DB_PASS>
@@ -222,86 +225,115 @@ UI to manage dashboards for a default user. Here are the steps to get it running
    If you get a 200 back with a payload containing an `updatetime` you're good to
    go. 
 
-   At this point the config API should be ready to go. 
-6. To use the Horizon UI with OpenTSDB and the config API you'll need a few more
+### H2
+For the all-in-one Docker container or to simply test out the project you can use
+an H2 database, either ephemerally in memory or saved to disk. When starting from 
+memory or with an empty database director, a default user `noauth` and namespace 
+`_default` will be created for use with Horizon UI.
+
+3. Edit the `opentsdb.yaml` file to set the JDBC driver to H2 and choose a file to 
+   write to.
+   Add the following lines:
+   ```yaml
+   jdbcpool.write.user: sa
+   jdbcpool.write.secret.key: PT:dbpass
+   # jdbcpool.write.url: jdbc:h2:<PATH_TO_DB>;MODE=MYSQL;NON_KEYWORDS=USER
+   jdbcpool.write.url: jdbc:h2:./opentsdb;MODE=MYSQL;NON_KEYWORDS=USER
+   
+   # NOTE: This is the insecure plain-text password. Use a proper secrets plugin.
+   dbpass: sa
+   ```
+
+   > **_NOTE:_** This uses the default `sa` user and pass for H2. If you intend
+   > to run this for a while and want to secure it, follow the H2 documentation to
+   > change the user and pass.
+
+At this point the config API should be ready to go. Use
+`--config.providers=secrets://net.opentsdb.configuration.provider.PlainTextSecretProvider:PT,file:///etc/opentsdb/opentsdb.yaml`
+as the config to start the TSD.
+
+## Horizon UI
+
+To use the Horizon UI with OpenTSDB and the config API you'll need a few more
    settings:
-   1. First add rewrites to the `opentsdb.yaml` config:
-      ```yaml
-       tsd.http.rewrites:
-         ^/$: /index.html
-         ^/d/|a/.*: /index.html
-       ```
-   2. Set the `opentsdb.yaml` static directory to point to the location of the 
-      packaged UI files. If building from source it would be in the `server/public`
-      directory from the git repo. For the pre-build OpenTSDB docker container the
-      files are in `/usr/share/opentsdb/static`.
-      ```yaml
-      tsd.http.staticroot: /usr/share/opentsdb/static
-      ```
-   3. Add CORs settings to the `opentsdb.yaml` file:
-      ```yaml
-       tsd.http.request.cors.pattern: .*
-       tsd.http.request.cors.headers: Authorization,Content-Type,Link,X-Total-Count,Range,X-Horizon-DSHBID,X-Horizon-WID
-       ```
-   4. And finally you'll want to edit the Horizon UI config with a file named
-      `config` in the same directory as the Horizon UI static files:
-      ```json
-      {
-        "name"  : "OpenTSDB Horizon",
-        "production": true,
-        "readonly": false,
-        "queryParams": null,
-        "debugLevel": "ERROR",
-        "uiBranding": {
-          "logo": {
-            "imageUrl": "/assets/horizon-logo-icon-only.png",
-            "homeUrl": "/main"
-          }
-        },
-        "tsdbCacheMode": null,
-        "tsdbSource": null,
-        "tsdb_hosts": [
-          "http://localhost:4242"
-        ],
-        "configdb": "http://localhost:4242/api/v1",
-        "metaApi": "http://localhost:4242/api",
-        "auraUI": "http://localhost:4242",
-        "alert": {
-          "recipient": {
-            "http": {
-              "enable": false
-            },
-            "email": {
-              "enable": true
-            }
-          }
-        },
-        "helpLinks": [
-          { "label": "User guide", "href": "#" },
-          { "label": "File a ticket", "href": "#" },
-          { "label": "Talk to us", "icon": "d-slack", "href": "#" }
-        ],
-        "modules": {
-          "dashboard": {
-            "widget": {
-              "overrideTime": true
-            }
-          }
-        },
-        "namespace": {
-          "enabled": false,
-          "default": "_default"
-        },
-        "auth": {
-        "loginURL": "/login",
-          "heartbeatURL": "/heartbeat",
-          "heartbeatImgURL": "/heartbeatimg",
-          "heartbeatInterval": 600
-        }
-      }
-      ```
-   5. Run the TSD and if you hit `http://localhost:4242` you should see the 
-      Horizon UI load!
+1. First add rewrites to the `opentsdb.yaml` config:
+   ```yaml
+    tsd.http.rewrites:
+      ^/$: /index.html
+      ^/d/|a/.*: /index.html
+      ^/main$: /index.html
+    ```
+2. Set the `opentsdb.yaml` static directory to point to the location of the 
+   packaged UI files. If building from source it would be in the `server/public`
+   directory from the git repo. For the pre-build OpenTSDB docker container the
+   files are in `/usr/share/opentsdb/static`.
+   ```yaml
+   tsd.http.staticroot: /usr/share/opentsdb/static
+   ```
+3. Add CORs settings to the `opentsdb.yaml` file:
+   ```yaml
+    tsd.http.request.cors.pattern: .*
+    tsd.http.request.cors.headers: Authorization,Content-Type,Link,X-Total-Count,Range,X-Horizon-DSHBID,X-Horizon-WID
+    ```
+4. And finally you'll want to edit the Horizon UI config with a file named
+   `config` in the same directory as the Horizon UI static files:
+   ```json
+   {
+     "name"  : "OpenTSDB Horizon",
+     "production": true,
+     "readonly": false,
+     "queryParams": null,
+     "debugLevel": "ERROR",
+     "uiBranding": {
+       "logo": {
+         "imageUrl": "/assets/horizon-logo-icon-only.png",
+         "homeUrl": "/main"
+       }
+     },
+     "tsdbCacheMode": null,
+     "tsdbSource": null,
+     "tsdb_hosts": [
+       "http://localhost:4242"
+     ],
+     "configdb": "http://localhost:4242/api/v1",
+     "metaApi": "http://localhost:4242/api",
+     "auraUI": "http://localhost:4242",
+     "alert": {
+       "recipient": {
+         "http": {
+           "enable": false
+         },
+         "email": {
+           "enable": true
+         }
+       }
+     },
+     "helpLinks": [
+       { "label": "User guide", "href": "#" },
+       { "label": "File a ticket", "href": "#" },
+       { "label": "Talk to us", "icon": "d-slack", "href": "#" }
+     ],
+     "modules": {
+       "dashboard": {
+         "widget": {
+           "overrideTime": true
+         }
+       }
+     },
+     "namespace": {
+       "enabled": false,
+       "default": "_default"
+     },
+     "auth": {
+     "loginURL": "/login",
+       "heartbeatURL": "/heartbeat",
+       "heartbeatImgURL": "/heartbeatimg",
+       "heartbeatInterval": 600
+     }
+   }
+   ```
+5. Run (or restart) the TSD and if you hit `http://localhost:4242` you should see the 
+   Horizon UI load!
 
 ## Pluggable components
 
@@ -392,7 +424,7 @@ Configure the key read factory in the `applicationConfig` section as shown here.
 
 ```yaml
 applicationConfig:
-  keyReaderFactoryClassName: {FQCN of CustomKeyReaderFactory}
+  keyReaderFactoryClassName: {FQDN of CustomKeyReaderFactory}
   initParams:
     initParams:
           {key1}: {value1}
@@ -409,6 +441,7 @@ Maintainers
 -----------
 
 * Smruti Ranjan Sahoo
+* Chris Larsen
 
 License
 -------

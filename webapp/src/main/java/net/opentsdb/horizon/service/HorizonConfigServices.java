@@ -31,6 +31,7 @@ import net.opentsdb.horizon.NamespaceCache;
 import net.opentsdb.horizon.SharedJDBCPool;
 import net.opentsdb.horizon.UserCache;
 import net.opentsdb.horizon.fs.store.FolderStore;
+import net.opentsdb.horizon.model.User;
 import net.opentsdb.horizon.store.ActivityStore;
 import net.opentsdb.horizon.store.AlertStore;
 import net.opentsdb.horizon.store.ContactStore;
@@ -249,6 +250,25 @@ public class HorizonConfigServices extends BaseTSDBPlugin {
     registry.registerSharedObject(SnoozeService.SO_SERVICE, snoozeService);
     registry.registerSharedObject(ContentService.SO_SERVICE, contentService);
     registry.registerSharedObject(SnapshotService.SO_SERVICE, snapshotService);
+
+    // super ugly hack to initialize a default user for H2.
+    if (tsdb.getConfig().hasProperty("horizon.config.h2.initialize") &&
+        tsdb.getConfig().getBoolean("horizon.config.h2.initialize")) {
+      try {
+        LOG.info("Attempting to create the default 'noauth' user...");
+        User user = new User()
+            .setUserid("user.noauth")
+            .setName("Default User")
+            .setEnabled(true)
+            .setCreationmode(User.CreationMode.onthefly);
+        userService.create(user, "OpenTSDB");
+        LOG.info("Successfully created the 'noauth' user.");
+
+      } catch (Exception e) {
+        LOG.error("Failed to create user", e);
+        return Deferred.fromError(e);
+      }
+    }
 
     return Deferred.fromResult(null);
   }

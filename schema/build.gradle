@@ -1,6 +1,6 @@
 /*
  * This file is part of OpenTSDB.
- *  Copyright (C) 2021 Yahoo.
+ *  Copyright (C) 2021-2022 Yahoo.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ dependencies {
     liquibaseRuntime 'org.yaml:snakeyaml:1.27'
 }
 
-def changeLog = "schema/changelog/horizon.xml"
+def changeLog = "webapp/src/main/resources/horizon.xml"
 
 task 'local-db' {
     doLast {
